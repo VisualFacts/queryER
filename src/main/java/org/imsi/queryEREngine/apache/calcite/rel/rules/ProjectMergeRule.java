@@ -1,0 +1,146 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.imsi.queryEREngine.apache.calcite.rel.rules;
+
+import java.util.List;
+
+import org.imsi.queryEREngine.apache.calcite.plan.RelOptRule;
+import org.imsi.queryEREngine.apache.calcite.plan.RelOptRuleCall;
+import org.imsi.queryEREngine.apache.calcite.plan.RelOptUtil;
+import org.imsi.queryEREngine.apache.calcite.rel.RelNode;
+import org.imsi.queryEREngine.apache.calcite.rel.core.Project;
+import org.imsi.queryEREngine.apache.calcite.rel.core.RelFactories;
+import org.imsi.queryEREngine.apache.calcite.rel.core.RelFactories.ProjectFactory;
+import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
+import org.imsi.queryEREngine.apache.calcite.rex.RexUtil;
+import org.imsi.queryEREngine.apache.calcite.tools.RelBuilder;
+import org.imsi.queryEREngine.apache.calcite.tools.RelBuilderFactory;
+import org.imsi.queryEREngine.apache.calcite.util.Permutation;
+
+/**
+ * ProjectMergeRule merges a {@link org.imsi.queryEREngine.apache.calcite.rel.core.Project} into
+ * another {@link org.imsi.queryEREngine.apache.calcite.rel.core.Project},
+ * provided the projects aren't projecting identical sets of input references.
+ */
+public class ProjectMergeRule extends RelOptRule {
+	/** Default amount by which complexity is allowed to increase. */
+	public static final int DEFAULT_BLOAT = 100;
+
+	public static final ProjectMergeRule INSTANCE =
+			new ProjectMergeRule(true, DEFAULT_BLOAT, RelFactories.LOGICAL_BUILDER);
+
+	//~ Instance fields --------------------------------------------------------
+
+	/** Whether to always merge projects. */
+	private final boolean force;
+
+	/** Limit how much complexity can increase during merging. */
+	private final int bloat;
+
+	//~ Constructors -----------------------------------------------------------
+
+	/**
+	 * Creates a ProjectMergeRule, specifying whether to always merge projects.
+	 *
+	 * @param force Whether to always merge projects
+	 */
+	public ProjectMergeRule(boolean force, int bloat,
+			RelBuilderFactory relBuilderFactory) {
+		super(
+				operand(Project.class,
+						operand(Project.class, any())),
+				relBuilderFactory,
+				"ProjectMergeRule" + (force ? ":force_mode" : ""));
+		this.force = force;
+		this.bloat = bloat;
+	}
+
+	@Deprecated // to be removed before 2.0
+	public ProjectMergeRule(boolean force, RelBuilderFactory relBuilderFactory) {
+		this(force, DEFAULT_BLOAT, relBuilderFactory);
+	}
+
+	@Deprecated // to be removed before 2.0
+	public ProjectMergeRule(boolean force, ProjectFactory projectFactory) {
+		this(force, RelBuilder.proto(projectFactory));
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	@Override
+	public void onMatch(RelOptRuleCall call) {
+		final Project topProject = call.rel(0);
+		final Project bottomProject = call.rel(1);
+		final RelBuilder relBuilder = call.builder();
+
+		// If one or both projects are permutations, short-circuit the complex logic
+		// of building a RexProgram.
+		final Permutation topPermutation = topProject.getPermutation();
+		if (topPermutation != null) {
+			if (topPermutation.isIdentity()) {
+				// Let ProjectRemoveRule handle this.
+				return;
+			}
+			final Permutation bottomPermutation = bottomProject.getPermutation();
+			if (bottomPermutation != null) {
+				if (bottomPermutation.isIdentity()) {
+					// Let ProjectRemoveRule handle this.
+					return;
+				}
+				final Permutation product = topPermutation.product(bottomPermutation);
+				relBuilder.push(bottomProject.getInput());
+				relBuilder.project(relBuilder.fields(product),
+						topProject.getRowType().getFieldNames());
+				call.transformTo(relBuilder.build());
+				return;
+			}
+		}
+
+		// If we're not in force mode and the two projects reference identical
+		// inputs, then return and let ProjectRemoveRule replace the projects.
+		if (!force) {
+			if (RexUtil.isIdentity(topProject.getProjects(),
+					topProject.getInput().getRowType())) {
+				return;
+			}
+		}
+
+		final List<RexNode> newProjects =
+				RelOptUtil.pushPastProjectUnlessBloat(topProject.getProjects(),
+						bottomProject, bloat);
+		if (newProjects == null) {
+			// Merged projects are significantly more complex. Do not merge.
+			return;
+		}
+		final RelNode input = bottomProject.getInput();
+		if (RexUtil.isIdentity(newProjects, input.getRowType())) {
+			if (force
+					|| input.getRowType().getFieldNames()
+					.equals(topProject.getRowType().getFieldNames())) {
+				call.transformTo(input);
+				return;
+			}
+		}
+
+		// replace the two projects with a combined projection
+		relBuilder.push(bottomProject.getInput());
+		relBuilder.project(newProjects, topProject.getRowType().getFieldNames());
+		RelNode relFinal = relBuilder.build();
+
+		call.transformTo(relFinal);
+	}
+}

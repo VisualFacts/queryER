@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>org.imsi</groupId>
+	<artifactId>queryER-API</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>queryER-API</name>
+	<description>QueryER API</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		 <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+
+		<!-- https://mvnrepository.com/artifact/com.univocity/univocity-parsers -->
+		<dependency>
+		    <groupId>com.univocity</groupId>
+		    <artifactId>univocity-parsers</artifactId>
+		    <version>2.1.1</version>
+		</dependency>
+
+        <dependency>
+            <groupId>au.com.bytecode</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.4</version>
+        </dependency> 
+      
+         <!-- 
+        <dependency>
+		    <groupId>com.opencsv</groupId>
+		    <artifactId>opencsv</artifactId>
+		    <version>5.3</version>
+		</dependency>
+          -->
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-configuration2 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.calcite/calcite-core
+			<dependency>
+			    <groupId>org.apache.calcite</groupId>
+			    <artifactId>calcite-core</artifactId>
+			    <version>1.22.0</version>		    
+			</dependency>
+	 	-->
+        <!--  Calcite -->
+        <dependency>
+            <groupId>org.apache.calcite</groupId>
+            <artifactId>calcite-linq4j</artifactId>
+            <version>1.22.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.calcite.avatica</groupId>
+            <artifactId>avatica-core</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apiguardian</groupId>
+            <artifactId>apiguardian-api</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.esri.geometry</groupId>
+            <artifactId>esri-geometry-api</artifactId>
+            <version>2.2.0</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.10.0</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.10.0</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.10.0</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
+        </dependency>
+        
+	 
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.4.0</version>
+            
+        </dependency>
+       
+        <dependency>
+            <groupId>com.yahoo.datasketches</groupId>
+            <artifactId>sketches-core</artifactId>
+            <version>0.9.0</version>
+            
+        </dependency>
+        <dependency>
+		    <groupId>com.zaxxer</groupId>
+		    <artifactId>HikariCP</artifactId>
+		    <version>3.4.5</version>
+		</dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.12</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>net.hydromatic</groupId>
+            <artifactId>aggdesigner-algorithm</artifactId>
+            <version>6.0</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>org.apache.calcite.avatica</groupId>
+            <artifactId>avatica-server</artifactId>
+            <version>1.16.0</version>
+            
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>commons-compiler</artifactId>
+            <version>3.0.11</version>
+            
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>3.0.11</version>
+            
+        </dependency>
+        
+        <dependency>
+		    <groupId>net.sf.trove4j</groupId>
+		    <artifactId>trove4j</artifactId>
+		    <version>3.0.3</version>
+		</dependency>
+		<dependency>
+		    <groupId>it.unimi.dsi</groupId>
+		    <artifactId>fastutil</artifactId>
+		    <version>8.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.3.5</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.agkn</groupId>
+		    <artifactId>hll</artifactId>
+		    <version>1.6.0</version>
+		</dependency>	
+		<!-- Exclude Spring Boot's Default Logging -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- Add Log4j2 Dependency -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+	</dependencies>
+
+ 	<build>
+ 
+		<plugins>
+			 <plugin>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-maven-plugin</artifactId>
+		    <executions>
+		        <execution>
+		            <goals>
+		                <goal>repackage</goal>
+		            </goals>
+		            <configuration>
+		                <classifier>runnable</classifier>
+		                <mainClass>
+		                  org.imsi.queryERAPI.Experiments
+		                </mainClass>
+		            </configuration>
+		        </execution>
+			    </executions>
+			</plugin>
+						
+		</plugins>
+		 
+	</build>
+
+ <!--
+ <build>
+    	<pluginManagement>
+	        <plugins>
+	            <plugin>
+	                <configuration>
+	                    <cfgFile>src/main/codegen/config.fmpp</cfgFile>
+	                    <outputDirectory>target/generated-sources/javacc</outputDirectory>
+	                    <templateDirectory>src/main/codegen/templates/</templateDirectory>
+	                </configuration>
+	                <groupId>com.googlecode.fmpp-maven-plugin</groupId>
+	                <artifactId>fmpp-maven-plugin</artifactId>
+	                <version>1.0</version>
+	                <executions>
+	                    <execution>
+	                        <phase>generate-sources</phase>
+	                        <goals>
+	                            <goal>generate</goal>
+	                        </goals>
+	                    </execution>
+	                </executions>
+	            </plugin>
+	             <plugin>
+			      <artifactId>maven-assembly-plugin</artifactId>
+			      <configuration>
+			        <archive>
+			          <manifest>
+			            <mainClass> org.imsi.queryERAPI.Experiments</mainClass>
+			          </manifest>
+			        </archive>
+			        <descriptorRefs>
+			          <descriptorRef>jar-with-dependencies</descriptorRef>
+			        </descriptorRefs>
+			      </configuration>
+				</plugin>
+	        </plugins>
+        </pluginManagement>
+    </build>
+     -->
+</project>

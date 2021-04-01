@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "defaultSchema": "ground_truth",
+  "schemas": [
+    {
+      "name": "all",
+      "type": "custom",
+      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
+      "operand": {
+        "directory": "/Users/vasilisstamatopoulos/Documents/Works/Athena/Projects/ER/Code/queryER/all",
+        "flavor": "translatable"
+      }
+    }
+  ]
+}

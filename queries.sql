@@ -1,0 +1,1 @@
+SELECT DEDUP * FROM synthetic.authors WHERE n_pubs >=1
