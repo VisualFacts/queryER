@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -88,6 +89,7 @@ public class DeduplicationExecution<T> {
 
     public static EntityResolvedTuple deduplicate(HashMap<Integer, Object[]> queryData, Integer key, Integer noOfAttributes,
 			String tableName, Enumerator<Object[]> originalEnumerator, String source) {
+    	setProperties();
     	boolean firstDedup = false;
     	double setPropertiesStartTime = System.currentTimeMillis();
     	//setProperties();
@@ -98,20 +100,25 @@ public class DeduplicationExecution<T> {
         // Check for links and remove qIds that have links
         double linksStartTime = System.currentTimeMillis();
         HashMap<Integer, Set<Integer>> links = loadLinks(tableName);
+        HashMap<Integer, Object[]> dataWithLinks = new HashMap<>();
         if(links == null) firstDedup = true;
         Set<Integer> qIds = new HashSet<>();
         Set<Integer> totalIds = new HashSet<>();
 
-        qIds = queryData.keySet();
+        qIds = MapUtilities.deepCopySet(queryData.keySet());
         
         // Remove from data qIds with links
         if(!firstDedup) {
-        	queryData.keySet().removeAll(links.keySet());
             // Clear links and keep only qIds
-    		Set<Integer> linkedIds = getLinkedIds(key, links,  qIds);
+        	Set<Integer> linkedIds = getLinkedIds(key, links,  qIds); // Get extra Link Ids that are not in queryData
+        	dataWithLinks = (HashMap<Integer, Object[]>) links.keySet().stream()
+        		    .filter(queryData::containsKey)
+        		    .collect(Collectors.toMap(Function.identity(), queryData::get));
+        	dataWithLinks = getExtraData(dataWithLinks, linkedIds, originalEnumerator, key);
+        	queryData.keySet().removeAll(links.keySet()); 
     		totalIds.addAll(linkedIds);  // Add links back
+    		
         }
-        
         final Set<Integer> qIdsNoLinks = MapUtilities.deepCopySet(queryData.keySet());
 
         double linksEndTime = System.currentTimeMillis();
@@ -164,6 +171,7 @@ public class DeduplicationExecution<T> {
         String epTotalComps = "";
         String filterBlockEntities = "";
         String ePEntities = "";
+        boolean epFlag = false;
         if (blocks.size() > 10) {
         	
         	// FILTERING
@@ -193,13 +201,15 @@ public class DeduplicationExecution<T> {
 	            }
 	            epTotalComps = Double.toString(totalComps);
 	            ePEntities = Integer.toString(queryBlockIndex.blocksToEntitiesD(blocks).size());
+	            epFlag = true;
+	            
             }
             
         }
 
         //Get ids of final entities, and add back qIds that were cut from m-blocking
         Set<Integer> blockQids = new HashSet<>();
-        if(runEP)
+        if(epFlag)
         	blockQids = queryBlockIndex.blocksToEntitiesD(blocks);
         else
         	blockQids = queryBlockIndex.blocksToEntities(blocks);
@@ -219,19 +229,15 @@ public class DeduplicationExecution<T> {
 		}
         double tableScanEndTime = System.currentTimeMillis();
         String tableScanTime = Double.toString((tableScanEndTime - tableScanStartTime) / 1000);
-
        
 
         double comparisonStartTime = System.currentTimeMillis() - storeTime;
-//        AbstractEnumerable<Object[]> comparisonEnumerable = createEnumerable((Enumerator<Object[]>) originalEnumerator, totalIds, key);
-//        queryData = createMap(comparisonEnumerable, key);
         
-        ExecuteBlockComparisons ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
-        EntityResolvedTuple entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
+        ExecuteBlockComparisons<?> ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
+        EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
         double comparisonEndTime = System.currentTimeMillis();
         double links2StartTime = System.currentTimeMillis();
         entityResolvedTuple.mergeLinks(links, tableName, firstDedup, totalIds, runLinks);
-        entityResolvedTuple.storeLI();
         double links2EndTime = System.currentTimeMillis();
 
         Integer executedComparisons = entityResolvedTuple.getComparisons();
@@ -254,18 +260,25 @@ public class DeduplicationExecution<T> {
 		
 	}
 
+	private static HashMap<Integer, Object[]> getExtraData(HashMap<Integer, Object[]> dataWithLinks, Set<Integer> linkedIds, Enumerator<Object[]> originalEnumerator, int tableKey) {
+		AbstractEnumerable<Object[]> comparisonEnumerable = createEnumerable((Enumerator<Object[]>) originalEnumerator, linkedIds, tableKey);
+		return mergeMaps(dataWithLinks, createMap(comparisonEnumerable, tableKey));
+	}
+
 	public static Set<Integer> getLinkedIds(Integer key, Map<Integer, Set<Integer>> links, Set<Integer> qIds) {
 
-    	Set<Integer> totalIds = new HashSet<>();
+    	Set<Integer> linkedIds = new HashSet<>();
     	Set<Set<Integer>> sublinks = links.entrySet().stream().filter(entry -> {
     		return qIds.contains(entry.getKey());
     	}).map(entry -> {
     		return entry.getValue();
     	}).collect(Collectors.toSet());
     	for (Set<Integer> sublink : sublinks) {
-    		totalIds.addAll(sublink);
+    		linkedIds.addAll(sublink);
     	}   	
-    	return totalIds;
+    	linkedIds.removeAll(qIds);
+
+    	return linkedIds;
     }
 
 	private static String getBlockSizes(List<AbstractBlock> blocks) {
@@ -286,6 +299,12 @@ public class DeduplicationExecution<T> {
 		
 	}
 
+	private static HashMap<Integer, Object[]> mergeMaps(HashMap<Integer, Object[]> map1, HashMap<Integer, Object[]> map2){
+		map1.forEach(
+        	    (key, value) -> map2.put(key, value)
+        	);
+        return map2;
+	}
 
     private static double storeIds(Set<Integer> qIds) {
     	Set<Integer> newSet = new HashSet<>();
@@ -308,12 +327,12 @@ public class DeduplicationExecution<T> {
      * @return AbstractEnumerable that combines the hashmap and the UnionFind to create the merged/fusioned data
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T> AbstractEnumerable<T> mergeEntities(EntityResolvedTuple entityResolvedTuple) {
+    public static <T> AbstractEnumerable<T> mergeEntities(EntityResolvedTuple entityResolvedTuple, List<Integer> projects, List<String> fieldNames) {
 //		if(entityResolvedTuple.uFind != null)
 //			entityResolvedTuple.sortEntities();
 //		if(DEDUPLICATION_EXEC_LOGGER.isDebugEnabled()) 
 //			DEDUPLICATION_EXEC_LOGGER.debug("Final Size: " + entityResolvedTuple.finalData.size());
-    	entityResolvedTuple.groupEntities();
+    	entityResolvedTuple.groupEntities(projects, fieldNames);
         return entityResolvedTuple;
 
     }

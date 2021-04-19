@@ -52,7 +52,7 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 
 	@Override
 	public Enumerator<T> enumerator() {
-		if(!isGrouped) this.groupEntities();
+		if(!isGrouped) this.groupEntities(null, null);
 		Enumerator<T> originalEnumerator = Linq4j.enumerator(this.finalData);
 		// TODO Auto-generated method stub
 		return new Enumerator<T>() {
@@ -91,8 +91,8 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void groupEntities() {
-		this.finalData = (List<T>) EntityGrouping.groupSimilar(this.revUF, 	this.data, keyIndex, noOfAttributes);	
+	public void groupEntities(List<Integer> projects, List<String> fieldNames) {
+		this.finalData = (List<T>) EntityGrouping.groupSimilar(this.revUF, 	this.data, keyIndex, noOfAttributes, projects, fieldNames, dumpDirectories.getLiFilePath());	
 		isGrouped = true;
 
 	}
@@ -100,7 +100,6 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 	@SuppressWarnings("unchecked")
 	public void getAll() {
 		double revUFCreationStartTime = System.currentTimeMillis();
-		
 		for (int child : uFind.getParent().keySet()) {
 			int parent = uFind.getParent().get(child);
 			this.revUF.computeIfAbsent(parent, x -> new HashSet<>()).add(child);
@@ -138,9 +137,6 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 		}
 	}
 	
-	public void storeLI() {
-		SerializationUtilities.storeSerializedObject(this.revUF, dumpDirectories.getLiFilePath());
-	}
 	
 	public void filterData(Set<Integer> totalIds) {
 		HashMap<Integer, Object[]> filteredData = new HashMap<>();

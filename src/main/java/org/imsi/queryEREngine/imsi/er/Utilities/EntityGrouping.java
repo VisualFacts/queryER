@@ -14,40 +14,48 @@ import java.util.Set;
 public class EntityGrouping {
 	
 	public static List<Object[]> groupSimilar(HashMap<Integer, Set<Integer>> revUF, 
-			HashMap<Integer, Object[]> newData, Integer keyIndex, Integer noOfFields) {
+			HashMap<Integer, Object[]> newData, Integer keyIndex, Integer noOfFields, List<Integer> projects, List<String> fieldNames, String storeLI) {
 		// TODO Auto-generated method stub
 		List<Object[]> finalData = new ArrayList<>();
 		Set<Integer> checked = new HashSet<>();
 		double startTime = System.currentTimeMillis();
+		List<BigVizOutput> bigVizOutput = new ArrayList<>();
+		if(fieldNames != null) noOfFields = fieldNames.size();
 		for (int id : revUF.keySet()) {
 			Object[] groupedObj = new Object[noOfFields]; //length
 			Set<Integer> similar = revUF.get(id);
 			if(checked.contains(id)) continue;
 			checked.addAll(similar);
+			HashMap<String, String>  columns = new HashMap<>();
 			for (int idInner : similar) {
 				Object[] datum = newData.get(idInner);
-				int i = 0;
 				if(datum != null) {
-					while(i < noOfFields) {
-						
-						if(groupedObj[i] == null && !(datum[i].equals("") || datum[i].equals("[\\W_]"))) {
-							groupedObj[i] = datum[i];
+					for(int j = 0; j < noOfFields; j++) {
+						int i = j;
+						if(fieldNames != null) {
+							i = projects.get(j);
+							if(i != keyIndex && idInner == id) columns.put(fieldNames.get(j), datum[i].toString()); // for json
 						}
-						else if (groupedObj[i] != null) {
-							if(!groupedObj[i].toString().contains(datum[i].toString()) && !(datum[i].equals("") || datum[i].equals("[\\W_]")))
-								groupedObj[i] = groupedObj[i].toString() + " | "+ datum[i].toString();
+						if(groupedObj[j] == null && !(datum[i].equals("") || datum[i].equals("[\\W_]"))) {
+							groupedObj[j] = datum[i];
+						}
+						else if (groupedObj[j] != null) {
+							if(!groupedObj[j].toString().contains(datum[i].toString()) && !(datum[i].equals("") || datum[i].equals("[\\W_]")))
+								groupedObj[j] = groupedObj[j].toString() + " | "+ datum[i].toString();
 						}
 						else {
-							groupedObj[i] = null;
+							groupedObj[j] = null;
 						}
-						i++;
 					}
 				}
 			}
+			similar.remove(id);
+			bigVizOutput.add(new BigVizOutput(id, columns, similar));
 			finalData.add(groupedObj);
 		}
 		revUF.clear();
 		newData.clear();
+		SerializationUtilities.storeSerializedObject(bigVizOutput, storeLI);
 		double endTime = System.currentTimeMillis();
         String totalTime = Double.toString((endTime -startTime) / 1000);
         System.out.println("Grouping time: " + totalTime);

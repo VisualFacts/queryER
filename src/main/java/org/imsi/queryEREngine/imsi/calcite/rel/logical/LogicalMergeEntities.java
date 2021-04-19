@@ -1,8 +1,14 @@
 package org.imsi.queryEREngine.imsi.calcite.rel.logical;
 
+import java.util.List;
+
 import org.imsi.queryEREngine.apache.calcite.plan.RelOptCluster;
+import org.imsi.queryEREngine.apache.calcite.plan.RelOptCost;
+import org.imsi.queryEREngine.apache.calcite.plan.RelOptPlanner;
 import org.imsi.queryEREngine.apache.calcite.plan.RelTraitSet;
 import org.imsi.queryEREngine.apache.calcite.rel.RelNode;
+import org.imsi.queryEREngine.apache.calcite.rel.metadata.RelMetadataQuery;
+import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.imsi.calcite.rel.core.MergeEntities;
 
 /**
@@ -14,35 +20,22 @@ import org.imsi.queryEREngine.imsi.calcite.rel.core.MergeEntities;
  */
 public class LogicalMergeEntities extends MergeEntities {
 
-	protected LogicalMergeEntities(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
-		super(cluster, traits, input);
+	protected LogicalMergeEntities(RelOptCluster cluster, RelTraitSet traits, RelNode input, List<Integer> projects, List<String> fieldNames) {
+		super(cluster, traits, input, projects, fieldNames);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public LogicalMergeEntities copy(RelTraitSet traitSet, RelNode input) {
 		// TODO Auto-generated method stub
-		return new LogicalMergeEntities(getCluster(), traitSet, input);
+		return new LogicalMergeEntities(getCluster(), traitSet, input, this.projects, this.fieldNames);
 	}
 
-	public static RelNode create(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+	public static RelNode create(RelOptCluster cluster, RelTraitSet traits, RelNode input, List<Integer> projects,  List<String> fieldNames) {
 		// TODO Auto-generated method stub
-		return new LogicalMergeEntities(cluster, traits, input);
+		return new LogicalMergeEntities(cluster, traits, input, projects, fieldNames);
 	}
 	
-//	@Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-//			RelMetadataQuery mq) {
-//		// Multiply the cost by a factor that makes a scan more attractive if it
-//		// has significantly fewer fields than the original scan.
-//		//
-//		// The "+ 2D" on top and bottom keeps the function fairly smooth.
-//		//
-//		// For example, if table has 3 fields, project has 1 field,
-//		// then factor = (1 + 2) / (3 + 2) = 0.6
-//		//System.out.println("Computing cost");
-//		RelOptCost cost =  super.computeSelfCost(planner, mq)
-//				.multiplyBy(0D);
-//		return cost;
-//	}
+	
 
 }

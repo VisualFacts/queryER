@@ -1,9 +1,13 @@
 package org.imsi.queryEREngine.imsi.er;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -59,6 +63,7 @@ public class QueryEngine {
 		calciteConnectionPool = new CalciteConnectionPool();
 		CalciteConnection calciteConnection = null;
 		try {
+			
 			calciteConnection = (CalciteConnection) calciteConnectionPool.setUp(calciteConnectionString);
 			this.calciteConnection = calciteConnection;
 		} catch (Exception e1) {
@@ -118,6 +123,17 @@ public class QueryEngine {
 		if(!properties.isEmpty()) {
             schemaName = properties.getProperty(SCHEMA_NAME);
             calciteConnectionString = properties.getProperty(CALCITE_CONNECTION);
+            if(calciteConnectionString == null) {
+            	URL res = QueryEngine.class.getClassLoader().getResource("model.json");
+            	File file = null;
+				try {
+					file = Paths.get(res.toURI()).toFile();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				calciteConnectionString = "jdbc:calcite:model=" + file.getAbsolutePath();
+            }
 			dumpPath = properties.getProperty(DUMP_PATH);
 		}
 	}
@@ -126,7 +142,7 @@ public class QueryEngine {
 		
         Properties prop = new Properties();
        
-		try (InputStream input = new FileInputStream(pathToPropertiesFile)){
+		try (InputStream input =  QueryEngine.class.getClassLoader().getResourceAsStream(pathToPropertiesFile)){
             // load a properties file
             prop.load(input);
                        

@@ -122,6 +122,8 @@ public class EnumerableRules {
 
 	public static final EnumerableMatchRule ENUMERABLE_MATCH_RULE =
 			new EnumerableMatchRule();
+	
+
 
 	public static final List<RelOptRule> ENUMERABLE_RULES = ImmutableList.of(
 			EnumerableRules.ENUMERABLE_JOIN_RULE,

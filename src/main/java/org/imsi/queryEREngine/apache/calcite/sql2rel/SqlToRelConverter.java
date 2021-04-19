@@ -1059,7 +1059,7 @@ public class SqlToRelConverter {
 			r = filter;
 		}
 		if(deduplicate) {
-			bb.setRoot(LogicalMergeEntities.create(r.getCluster(), r.getTraitSet().replace(Convention.NONE), r), false);
+			bb.setRoot(LogicalMergeEntities.create(r.getCluster(), r.getTraitSet().replace(Convention.NONE), r, null, null), false);
 		}
 		else {
 			bb.setRoot(r, false);

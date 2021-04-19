@@ -21,15 +21,17 @@ public class EnumerableMergeEntitiesRule extends ConverterRule {
 		super(LogicalMergeEntities.class,
 				(Predicate<RelNode>) r -> true,
 				Convention.NONE, EnumerableConvention.INSTANCE,
-				RelFactories.LOGICAL_BUILDER, "EnumerableMergeEntitiesRule");
+				RelFactories.LOGICAL_BUILDER, "EnumerableMergeProjectRule");
 	}
 
 	@Override
 	public RelNode convert(RelNode rel) {
-		final LogicalMergeEntities mergeEntities = (LogicalMergeEntities) rel;
+		final LogicalMergeEntities mergeProject = (LogicalMergeEntities) rel;
 		return EnumerableMergeEntities.create(
-				convert(mergeEntities.getInput(),
-						mergeEntities.getInput().getTraitSet()
-						.replace(EnumerableConvention.INSTANCE)));
+				convert(mergeProject.getInput(),
+						mergeProject.getInput().getTraitSet()
+						.replace(EnumerableConvention.INSTANCE)),
+						mergeProject.getProjects(),
+						mergeProject.getFieldNames());
 	}
 }

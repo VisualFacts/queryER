@@ -9,14 +9,14 @@
         <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
-        <File name="FileAppender" fileName="data/logs/deduplication_log.csv" bufferedIO="true" advertiseURI="file:data/logs/deduplication_log.csv" advertise="true">
+        <File name="FileAppender" fileName="data/logs/deduplication_log.log" bufferedIO="true" advertiseURI="file:data/logs/deduplication_log.log" advertise="true">
 		</File>
     </Appenders>
     <Loggers>
-        <Logger name="org.imsi.queryEREngine.apache.calcite.plan.RelOptPlanner" level="warn" additivity="false">
+        <Logger name="org.imsi.queryEREngine.apache.calcite.plan.RelOptPlanner" level="debug" additivity="true">
             <AppenderRef ref="ConsoleAppender" />
         </Logger>
-		<Logger name="org.imsi.queryEREngine.apache.calcite.plan.hep.HepPlanner" level="warn" additivity="false">
+		<Logger name="org.imsi.queryEREngine.apache.calcite.plan.hep.HepPlanner" level="debug" additivity="true">
             <AppenderRef ref="ConsoleAppender" />
         </Logger>
         <Logger name="org.imsi.queryEREngine.imsi.calcite.util.DeduplicationExecution" level="debug" additivity="true">

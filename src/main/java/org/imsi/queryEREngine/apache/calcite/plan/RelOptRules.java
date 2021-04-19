@@ -73,6 +73,7 @@ import org.imsi.queryEREngine.apache.calcite.rel.rules.UnionToDistinctRule;
 import org.imsi.queryEREngine.apache.calcite.rel.rules.ValuesReduceRule;
 import org.imsi.queryEREngine.imsi.calcite.rel.rules.FilterDeduplicateTransposeRule;
 import org.imsi.queryEREngine.imsi.calcite.rel.rules.FilterMergeTransposeRule;
+import org.imsi.queryEREngine.imsi.calcite.rel.rules.ProjectGroupMergeRule;
 import org.imsi.queryEREngine.imsi.calcite.rel.rules.DirtyJoinDeduplicateRemoveRule;
 import com.google.common.collect.ImmutableList;
 
@@ -120,6 +121,7 @@ public class RelOptRules {
 					FilterTableScanRule.INSTANCE,
 					FilterDeduplicateTransposeRule.INSTANCE,
 					FilterMergeTransposeRule.INSTANCE,
+					ProjectGroupMergeRule.INSTANCE,
 					DirtyJoinDeduplicateRemoveRule.INSTANCE,
 //					MultiDirtyLeftJoinDeduplicateRemoveRule.INSTANCE,
 //					MultiDirtyRightJoinDeduplicateRemoveRule.INSTANCE,

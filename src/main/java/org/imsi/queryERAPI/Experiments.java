@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -363,6 +366,17 @@ public class Experiments {
             totalRuns = Integer.parseInt(properties.getProperty(QUERY_TOTAL_RUNS));
             schemaName = properties.getProperty(SCHEMA_NAME);
             calciteConnectionString = properties.getProperty(CALCITE_CONNECTION);
+            if(calciteConnectionString == null) {
+            	URL res = Experiments.class.getClassLoader().getResource("model.json");
+            	File file = null;
+				try {
+					file = Paths.get(res.toURI()).toFile();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				calciteConnectionString = "jdbc:calcite:model=" + file.getAbsolutePath();
+            }
             calculateGroundTruth = Boolean.parseBoolean(properties.getProperty(CALCULATE_GROUND_TRUTH));
             groundTruthDivide = Integer.parseInt(properties.getProperty(DIVIDE_GROUND_TRUTH));
 			dumpPath = properties.getProperty(DUMP_PATH);
@@ -373,7 +387,7 @@ public class Experiments {
 		
         Properties prop = new Properties();
 
-		try (InputStream input = new FileInputStream(pathToPropertiesFile)) {
+		try (InputStream input =  Experiments.class.getClassLoader().getResourceAsStream(pathToPropertiesFile)) {
             // load a properties file
             prop.load(input);
                        

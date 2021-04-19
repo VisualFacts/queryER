@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.imsi.queryERAPI.util.PagedResult;
 import org.imsi.queryERAPI.util.ResultSetToJsonMapper;
 import org.imsi.queryEREngine.imsi.er.QueryEngine;
+import org.imsi.queryEREngine.imsi.er.Utilities.BigVizOutput;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
 import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 import org.springframework.http.ResponseEntity;
@@ -62,8 +63,8 @@ public class QueryController {
 		if(!this.query.contentEquals(q)) {
 			rs = qe.runQuery(q);		
 			if(rs != null) {
-				HashMap<Integer, Set<Integer>> LI = (HashMap<Integer, Set<Integer>>) SerializationUtilities.loadSerializedObject(dumpDirectories.getLiFilePath());
-				return ok(mapper.writeValueAsString(LI));
+				List<BigVizOutput> bigVizOutput = (List<BigVizOutput>) SerializationUtilities.loadSerializedObject(dumpDirectories.getLiFilePath());
+				return ok(mapper.writeValueAsString(bigVizOutput));
 			}
 			
 		}

@@ -5988,3 +5988,4 @@ target/surefire-reports/2021-03-29T21-58-57_836.dumpstream
 target/surefire-reports/org.imsi.queryERAPI.QueryErApiApplicationTests.txt
 target/surefire-reports/TEST-org.imsi.queryERAPI.QueryErApiApplicationTests.xml
 target/test-classes/org/imsi/queryERAPI/QueryErApiApplicationTests.class
+/target/
