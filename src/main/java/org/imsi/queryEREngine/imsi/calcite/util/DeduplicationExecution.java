@@ -233,6 +233,7 @@ public class DeduplicationExecution<T> {
 
         double comparisonStartTime = System.currentTimeMillis() - storeTime;
         
+        queryData = mergeMaps(queryData, dataWithLinks);
         ExecuteBlockComparisons<?> ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
         EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
         double comparisonEndTime = System.currentTimeMillis();

@@ -145,6 +145,7 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 		this.revUF.values().forEach(v -> v.retainAll(totalIds));
 		for (int id : this.revUF.keySet()) {
 			Object[] datum = this.data.get(id);
+			if(datum == null) System.out.println(datum);
 			filteredData.put(id, datum);
 			this.finalData.add((T) datum);
 		}
