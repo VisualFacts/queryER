@@ -89,6 +89,7 @@ public class DeduplicationExecution<T> {
 
     public static EntityResolvedTuple deduplicate(HashMap<Integer, Object[]> queryData, Integer key, Integer noOfAttributes,
 			String tableName, Enumerator<Object[]> originalEnumerator, String source) {
+    	
     	setProperties();
     	boolean firstDedup = false;
     	double setPropertiesStartTime = System.currentTimeMillis();
@@ -107,7 +108,11 @@ public class DeduplicationExecution<T> {
 
         qIds = MapUtilities.deepCopySet(queryData.keySet());
         
-        // Remove from data qIds with links
+        /* If there are links then we get all ids that are in the links HashMap (both on keys and the values).
+         * Then we get all these data and put it onto the dataWithLinks hashMap.
+         * Now we have two hashmaps 1) dataWithLinks, queryData = data without links.
+         * After we deduplicate queryData, we will merge these two tables.
+         */
         if(!firstDedup) {
             // Clear links and keep only qIds
         	Set<Integer> linkedIds = getLinkedIds(key, links,  qIds); // Get extra Link Ids that are not in queryData
@@ -233,6 +238,7 @@ public class DeduplicationExecution<T> {
 
         double comparisonStartTime = System.currentTimeMillis() - storeTime;
         
+        // Merge queryData with dataWithLinks
         queryData = mergeMaps(queryData, dataWithLinks);
         ExecuteBlockComparisons<?> ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
         EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
@@ -257,12 +263,14 @@ public class DeduplicationExecution<T> {
         			purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
         			epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + tableScanTime + "," + jaroTime + "," +
         			comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime);
+        
         return entityResolvedTuple;
 		
 	}
 
 	private static HashMap<Integer, Object[]> getExtraData(HashMap<Integer, Object[]> dataWithLinks, Set<Integer> linkedIds, Enumerator<Object[]> originalEnumerator, int tableKey) {
 		AbstractEnumerable<Object[]> comparisonEnumerable = createEnumerable((Enumerator<Object[]>) originalEnumerator, linkedIds, tableKey);
+        originalEnumerator.close();
 		return mergeMaps(dataWithLinks, createMap(comparisonEnumerable, tableKey));
 	}
 

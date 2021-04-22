@@ -99,11 +99,18 @@ public class ExecuteBlockComparisons<T> {
 				}
 			}
 		}	
+		try {
+			randomAccessReader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		EntityResolvedTuple eRT = new EntityResolvedTuple(newData, uFind, keyIndex, noOfFields);	
 		eRT.setComparisons(comparisons);
 		eRT.setMatches(matches.size());
 		eRT.setCompTime(compTime/1000);
 		eRT.getAll();
+		
 		return eRT;
 	}
 	

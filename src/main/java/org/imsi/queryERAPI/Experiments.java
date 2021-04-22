@@ -342,6 +342,7 @@ public class Experiments {
 	private static void exportQueryContent(ResultSet queryResults, String path) throws SQLException, IOException {
 		 CSVWriter writer = new CSVWriter(new FileWriter(path),',');
 	     writer.writeAll(queryResults, true);
+	     writer.close();
 		 
 	}
 

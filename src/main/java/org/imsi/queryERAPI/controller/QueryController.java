@@ -12,6 +12,7 @@ import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -34,23 +35,19 @@ public class QueryController {
 	List<ObjectNode> results = null;
 	DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
 	String query = "";
-//	@PostMapping("/query")
-//	public ResponseEntity<String> query(@RequestParam(value = "q", required = true) String q,
-//			@RequestParam(value = "page", required = false) int page, 
-//			@RequestParam(value = "offset", required = false) int offset) throws JsonProcessingException, SQLException  {
-//
-//		return liResult(q, page, offset);
-//		//return queryResult(q, page, offset);
-//
-//
-//
-//	}
-	
 	@PostMapping("/query")
+	public ResponseEntity<String> query(@RequestParam(value = "q", required = true) String q,
+			@RequestParam(value = "page", required = false) int page, 
+			@RequestParam(value = "offset", required = false) int offset) throws JsonProcessingException, SQLException  {
+
+		return queryResult(q, page, offset);
+
+	}
+	
+	@PostMapping("/query-rv")
 	public ResponseEntity<String> query(@RequestParam(value = "q", required = true) String q) throws JsonProcessingException, SQLException  {
 
 		return liResult(q);
-		//return queryResult(q, page, offset);
 
 
 
