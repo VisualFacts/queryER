@@ -7,7 +7,25 @@
       "type": "custom",
       "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
       "operand": {
-        "directory": "/Users/vasilisstamatopoulos/Documents/Works/Athena/Projects/ER/Code/queryER/all",
+        "directory": "/home/bstam/erVis/queryER/all",
+        "flavor": "translatable"
+      }
+    },
+{
+      "name": "real",
+      "type": "custom",
+      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
+      "operand": {
+        "flavor": "translatable",
+        "directory": "/home/bstam/backend/resources/real"
+      }
+    },
+    {
+      "name": "synthetic",
+      "type": "custom",
+      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
+      "operand": {
+       "directory": "/home/bstam/backend/resources/synthetic",
         "flavor": "translatable"
       }
     }
