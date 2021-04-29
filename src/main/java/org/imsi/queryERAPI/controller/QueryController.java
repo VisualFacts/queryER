@@ -55,7 +55,7 @@ public class QueryController {
 	
 	@PostMapping("/columns")
 	public ResponseEntity<String> columns(@RequestParam(value = "d", required = true) String dataset) throws JsonProcessingException, SQLException  {
-		String q = "SELECT * FROM " + dataset + " LIMIT 3;";
+		String q = "SELECT * FROM " + dataset + " LIMIT 3";
 		QueryEngine qe = new QueryEngine();
 		ObjectMapper mapper = new ObjectMapper();
 		rs = qe.runQuery(q);
