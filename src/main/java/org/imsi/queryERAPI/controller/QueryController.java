@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +51,20 @@ public class QueryController {
 
 		return liResult(q);
 
-
+	}
+	
+	@PostMapping("/columns")
+	public ResponseEntity<String> columns(@RequestParam(value = "d", required = true) String dataset) throws JsonProcessingException, SQLException  {
+		String q = "SELECT * FROM d LIMIT 3;";
+		QueryEngine qe = new QueryEngine();
+		ObjectMapper mapper = new ObjectMapper();
+		rs = qe.runQuery(q);
+		ResultSetMetaData rsmd = rs.getMetaData();
+		List<String> columns = new ArrayList<>();
+		for(int i = 0; i < rsmd.getColumnCount(); i++) {
+			columns.add(rsmd.getColumnName(i));
+		}
+		return ok(mapper.writeValueAsString(columns));
 
 	}
 	public ResponseEntity<String> liResult(String q) throws SQLException, JsonProcessingException {
@@ -103,5 +118,7 @@ public class QueryController {
 
 		return ok(mapper.writeValueAsString(new PagedResult(pages, results, end)));
 	}
+	
+	
 
 }
