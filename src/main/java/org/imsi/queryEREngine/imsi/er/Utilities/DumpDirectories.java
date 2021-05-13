@@ -34,10 +34,10 @@ public class DumpDirectories implements Serializable{
 
 	public static DumpDirectories loadDirectories() {
 
-		if(new File("/usr/share/data/dumpMap.json").exists()) {
+		if(new File("/usr/local/share/data/dumpMap.json").exists()) {
 			ObjectMapper objectMapper = new ObjectMapper();  
 			try {
-				return objectMapper.readValue(new File("/usr/share/data/dumpMap.json"),	DumpDirectories.class);
+				return objectMapper.readValue(new File("/usr/local/share/data/dumpMap.json"),	DumpDirectories.class);
 
 			} catch (JsonParseException e) {
 				e.printStackTrace();
@@ -101,7 +101,7 @@ public class DumpDirectories implements Serializable{
 	}
 
 	public void storeDumpMap() throws IOException {
-		File file = new File("/usr/share/data/dumpMap.json");
+		File file = new File("/usr/local/share/data/dumpMap.json");
 		FileOutputStream fOut = null;
 
 		fOut = new FileOutputStream(file);

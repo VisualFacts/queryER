@@ -62,7 +62,7 @@ public class QueryController {
 		ResultSetMetaData rsmd = rs.getMetaData();
 		List<String> columns = new ArrayList<>();
 		for(int i = 0; i < rsmd.getColumnCount(); i++) {
-			columns.add(rsmd.getColumnName(i));
+			columns.add(rsmd.getColumnName(i+1));
 		}
 		return ok(mapper.writeValueAsString(columns));
 
@@ -75,7 +75,7 @@ public class QueryController {
 		if(!this.query.contentEquals(q)) {
 			rs = qe.runQuery(q);		
 			if(rs != null) {
-				List<BigVizOutput> bigVizOutput = (List<BigVizOutput>) SerializationUtilities.loadSerializedObject(dumpDirectories.getLiFilePath());
+				BigVizOutput bigVizOutput = (BigVizOutput) SerializationUtilities.loadSerializedObject(dumpDirectories.getLiFilePath());
 				return ok(mapper.writeValueAsString(bigVizOutput));
 			}
 			

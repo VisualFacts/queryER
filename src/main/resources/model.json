@@ -1,33 +1,33 @@
 {
   "version": "1.0",
-  "defaultSchema": "ground_truth",
+  "defaultSchema": "all",
   "schemas": [
     {
       "name": "all",
       "type": "custom",
       "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
       "operand": {
-        "directory": "/home/bstam/erVis/queryER/all",
-        "flavor": "translatable"
-      }
-    },
-{
-      "name": "real",
-      "type": "custom",
-      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
-      "operand": {
-        "flavor": "translatable",
-        "directory": "/home/bstam/backend/resources/real"
-      }
-    },
-    {
-      "name": "synthetic",
-      "type": "custom",
-      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
-      "operand": {
-       "directory": "/home/bstam/backend/resources/synthetic",
+        "directory": "/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/ER/Code/queryER/all",
         "flavor": "translatable"
       }
     }
+    // {
+    //   "name": "real",
+    //   "type": "custom",
+    //   "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
+    //   "operand": {
+    //     "flavor": "translatable",
+    //     "directory": "/home/bstam/backend/resources/real"
+    //   }
+    // },
+    // {
+    //   "name": "synthetic",
+    //   "type": "custom",
+    //   "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
+    //   "operand": {
+    //    "directory": "/home/bstam/backend/resources/synthetic",
+    //     "flavor": "translatable"
+    //   }
+    // }
   ]
 }

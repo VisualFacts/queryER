@@ -6,6 +6,7 @@ import org.apache.calcite.linq4j.Enumerator;
 import org.imsi.queryEREngine.apache.calcite.util.Sources;
 import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
 import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.er.QueryEngine;
 import org.imsi.queryEREngine.imsi.er.BlockIndex.QueryBlockIndex;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.DecomposedBlock;
@@ -422,8 +423,7 @@ public class DeduplicationExecution<T> {
 	private static Properties loadProperties() {
 		
         Properties prop = new Properties();
-
-		try (InputStream input = new FileInputStream(pathToPropertiesFile)) {
+		try (InputStream input =  DeduplicationExecution.class.getClassLoader().getResourceAsStream(pathToPropertiesFile)) {
             // load a properties file
             prop.load(input);
                        
