@@ -1,4 +1,4 @@
-package org.imsi.queryEREngine.imsi.er.Utilities;
+package org.imsi.queryEREngine.imsi.er.BigVizUtilities;
 
 import java.io.Serializable;
 import java.util.HashMap;

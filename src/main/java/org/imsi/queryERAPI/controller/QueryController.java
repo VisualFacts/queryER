@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.imsi.queryERAPI.util.PagedResult;
 import org.imsi.queryERAPI.util.ResultSetToJsonMapper;
 import org.imsi.queryEREngine.imsi.er.QueryEngine;
-import org.imsi.queryEREngine.imsi.er.Utilities.BigVizOutput;
+import org.imsi.queryEREngine.imsi.er.BigVizUtilities.BigVizOutput;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
 import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 import org.springframework.http.ResponseEntity;
