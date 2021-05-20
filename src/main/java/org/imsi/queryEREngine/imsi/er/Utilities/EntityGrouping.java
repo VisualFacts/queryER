@@ -2,6 +2,7 @@ package org.imsi.queryEREngine.imsi.er.Utilities;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +14,7 @@ import org.imsi.queryEREngine.imsi.er.BigVizUtilities.BigVizCluster;
 import org.imsi.queryEREngine.imsi.er.BigVizUtilities.BigVizData;
 import org.imsi.queryEREngine.imsi.er.BigVizUtilities.BigVizOutput;
 import org.imsi.queryEREngine.imsi.er.BigVizUtilities.BigVizStatistic;
-
+import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 
 
 /**
@@ -52,12 +53,11 @@ public class EntityGrouping {
 						}
 						if(groupedObj[j] == null && !(datum[i].equals("") || datum[i].equals("[\\W_]"))) {
 							groupedObj[j] = datum[i];
-							clusterColumnSimilarity.put(fieldNames.get(j), 0.0);
 						}
 						else if (groupedObj[j] != null) {
 							if(!groupedObj[j].toString().contains(datum[i].toString()) && !(datum[i].equals("") || datum[i].equals("[\\W_]"))) {
 								groupedObj[j] = groupedObj[j].toString() + " | "+ datum[i].toString();
-								clusterColumnSimilarity.put(fieldNames.get(j), clusterColumnSimilarity.get(fieldNames.get(j)) + 1);
+								clusterColumnSimilarity.merge(fieldNames.get(j), 2.0, (a, b) ->  a + 1);
 							}
 						}
 						else {
@@ -68,25 +68,27 @@ public class EntityGrouping {
 				}
 				entityGroup.add(new BigVizData(idInner, columns));
 			}
-			clusterColumnSimilarity.replaceAll((k,v) -> v != null ? v / entityGroup.size() : null);
-			columnSimilarities.add(clusterColumnSimilarity);
+			
 			similar.remove(id);
-			BigVizCluster cluster = new BigVizCluster(entityGroup, groupedObj, clusterColumnSimilarity);
-			if(similar.size() > 0) bigVizDataset.add(cluster);
+			if(similar.size() > 0) {
+				clusterColumnSimilarity.replaceAll((k,v) -> v != null ? v / entityGroup.size() : 0.0);
+				for(String col : fieldNames) clusterColumnSimilarity.putIfAbsent(col, 0.0);
+				columnSimilarities.add(clusterColumnSimilarity);
+				BigVizCluster cluster = new BigVizCluster(entityGroup, groupedObj, clusterColumnSimilarity);
+				bigVizDataset.add(cluster);
+			}
 			finalData.add(groupedObj);
 		}
 		revUF.clear();
 		newData.clear();
 		BigVizStatistic bigVizStatistic = generateBigVizStatistic(bigVizDataset, columnSimilarities, finalData.size());
 		BigVizOutput bigVizOutput = new BigVizOutput(bigVizDataset, bigVizStatistic);
-		System.out.println(bigVizStatistic);
 		SerializationUtilities.storeSerializedObject(bigVizOutput, storeLI);
 		double endTime = System.currentTimeMillis();
         String totalTime = Double.toString((endTime -startTime) / 1000);
         System.out.println("Grouping time: " + totalTime);
 		return finalData;
 	}
-
 
 	private static BigVizStatistic generateBigVizStatistic(List<BigVizCluster> bigVizDataset,
 			List<HashMap<String, Double>> columnSimilarities, int size) {
@@ -96,7 +98,6 @@ public class EntityGrouping {
 			    .flatMap(map -> map.entrySet().stream())
 			    .collect(Collectors.groupingBy(Map.Entry::getKey, 
 			             Collectors.averagingDouble(value -> (value.getValue()))));
-		
 		BigVizStatistic bigVizStatistic = new BigVizStatistic(percentOfDups, (HashMap<String, Double>) avgColumSimilarities);
 		return bigVizStatistic;
 	}
