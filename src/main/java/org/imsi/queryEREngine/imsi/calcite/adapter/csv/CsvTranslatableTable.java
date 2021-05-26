@@ -44,7 +44,7 @@ implements QueryableTable, TranslatableTable {
 
 
 	/** Creates a CsvTable. */
-	CsvTranslatableTable(Source source, String name, RelProtoDataType protoRowType) {
+	public CsvTranslatableTable(Source source, String name, RelProtoDataType protoRowType) {
 		super(source, name, protoRowType);
 
 	}

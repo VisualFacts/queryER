@@ -23,6 +23,7 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 	public UnionFind uFind;
 	public HashMap<Integer, Set<Integer>> revUF; // these is the query links
 	public HashMap<Integer, Set<Integer>> links; // these are the total links
+	public HashMap<Integer, HashMap<Integer,Double>> similarities;
 	public List<T> finalData;
 	private boolean isGrouped = false;
 	private int matches;
@@ -41,6 +42,19 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 		this.revUF = new HashMap<>();
 		this.keyIndex = keyIndex;
 		this.noOfAttributes = noOfAttributes;
+	}
+	
+	public EntityResolvedTuple(HashMap<Integer, Object[]> data, UnionFind uFind, 
+			HashMap<Integer, HashMap<Integer,Double>> similarities,Integer keyIndex, 
+			 Integer noOfAttributes) {
+		super();
+		this.data = data;
+		this.uFind = uFind;
+		this.finalData = new ArrayList<>();
+		this.revUF = new HashMap<>();
+		this.keyIndex = keyIndex;
+		this.noOfAttributes = noOfAttributes;
+		this.similarities = similarities;
 	}
 	
 	public EntityResolvedTuple(List<Object[]> finalData, UnionFind uFind, Integer keyIndex, Integer noOfAttributes) {
@@ -92,7 +106,9 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 	
 	@SuppressWarnings("unchecked")
 	public void groupEntities(List<Integer> projects, List<String> fieldNames) {
-		this.finalData = (List<T>) EntityGrouping.groupSimilar(this.revUF, 	this.data, keyIndex, noOfAttributes, projects, fieldNames, dumpDirectories.getLiFilePath());	
+		this.finalData = (List<T>) EntityGrouping.groupSimilar(this.revUF, 
+				this.data, this.similarities, keyIndex, 
+				noOfAttributes, projects, fieldNames, dumpDirectories.getLiFilePath());	
 		isGrouped = true;
 
 	}

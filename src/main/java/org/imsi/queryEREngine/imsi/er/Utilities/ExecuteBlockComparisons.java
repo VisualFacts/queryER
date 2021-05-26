@@ -65,6 +65,7 @@ public class ExecuteBlockComparisons<T> {
 		Set<String> matches = new HashSet<>();
 		Set<AbstractBlock> nBlocks = new HashSet<>(blocks);
 		Set<String> uComparisons = new HashSet<>();
+		HashMap<Integer, HashMap<Integer,Double>> similarities = new HashMap<>();
 		this.noOfFields = noOfFields;
 		double compTime = 0.0;
 		for (AbstractBlock block : nBlocks) {
@@ -96,6 +97,12 @@ public class ExecuteBlockComparisons<T> {
 				if (similarity >= 0.92) {
 					matches.add(uniqueComp);
 					uFind.union(id1, id2); 	
+					//for id1
+					HashMap<Integer, Double> similarityValues = similarities.computeIfAbsent(id1, x -> new HashMap<>());
+					similarityValues.put(id2, similarity);
+					// for id2
+					similarityValues = similarities.computeIfAbsent(id2, x -> new HashMap<>());
+					similarityValues.put(id1, similarity);
 				}
 			}
 		}	
@@ -105,7 +112,7 @@ public class ExecuteBlockComparisons<T> {
 			e.printStackTrace();
 		}
 		
-		EntityResolvedTuple eRT = new EntityResolvedTuple(newData, uFind, keyIndex, noOfFields);	
+		EntityResolvedTuple eRT = new EntityResolvedTuple(newData, uFind, similarities, keyIndex, noOfFields);	
 		eRT.setComparisons(comparisons);
 		eRT.setMatches(matches.size());
 		eRT.setCompTime(compTime/1000);

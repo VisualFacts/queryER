@@ -2,6 +2,8 @@ package org.imsi.queryEREngine.imsi.er.Utilities;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +13,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+
+import org.xerial.snappy.SnappyOutputStream;
+
+
 
 /**
  *
@@ -27,12 +33,10 @@ public class SerializationUtilities {
 			ObjectInput input = new ObjectInputStream(buffer);
 			try {
 				object = input.readObject();
-			} finally {
-				input.close();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (ClassNotFoundException cnfEx) {
-			System.err.println(fileName);
-			cnfEx.printStackTrace();
 		} catch (IOException ioex) {
 			System.err.println(fileName);
 			ioex.printStackTrace();
@@ -56,9 +60,14 @@ public class SerializationUtilities {
 		} catch (IOException ioex) {
 			ioex.printStackTrace();
 		}
-
+		
+		
 		return object;
 	}
+	
+
+
+	
 	public static Object loadSerializedObjectWithExceptions(String fileName) throws Exception {
 		InputStream file = new FileInputStream(fileName);
 		InputStream buffer = new BufferedInputStream(file);
@@ -82,5 +91,6 @@ public class SerializationUtilities {
 		} catch (IOException ioex) {
 			ioex.printStackTrace();
 		}
+
 	}
 }
