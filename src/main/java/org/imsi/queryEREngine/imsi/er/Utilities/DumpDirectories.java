@@ -24,6 +24,7 @@ public class DumpDirectories implements Serializable{
 	private  String tableStatsDirPath;
 	private  String blockIndexStatsDirPath;
 	private  String linksDirPath;
+	private String similaritiesDirPath;
 	private String liFilePath;
 	private  String qIdsPath;
 	private String vetiPath;
@@ -58,6 +59,7 @@ public class DumpDirectories implements Serializable{
 		tableStatsDirPath = dumpPath + "/tableStats/tableStats/";
 		blockIndexStatsDirPath = dumpPath + "/tableStats/blockIndexStats/";
 		linksDirPath = dumpPath + "/links/";
+		similaritiesDirPath = dumpPath + "/links/";
 		qIdsPath = dumpPath + "/qIds/";
 		vetiPath = dumpPath + "/veti/";
 		liFilePath = dumpPath + "/LI";
@@ -73,6 +75,7 @@ public class DumpDirectories implements Serializable{
 		File blockIndexStats = new File(blockIndexStatsDirPath);
 		File linksDir = new File(linksDirPath);
 		File vetiDir = new File(vetiPath);
+		File similaritiesDir = new File(similaritiesDirPath);
 		if(!dataDir.exists()) {
 			FileUtils.forceMkdir(dataDir); //create directory
 		}
@@ -93,6 +96,9 @@ public class DumpDirectories implements Serializable{
 		}
 		if(!linksDir.exists()) {
 			FileUtils.forceMkdir(linksDir); //create directory
+		}
+		if(!similaritiesDir.exists()) {
+			FileUtils.forceMkdir(similaritiesDir); //create directory
 		}
 		if(!vetiDir.exists()) {
 			FileUtils.forceMkdir(vetiDir); //create directory

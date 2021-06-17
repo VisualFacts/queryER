@@ -111,7 +111,7 @@ public class ExecuteBlockComparisons<T> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+		System.out.println(similarities);
 		EntityResolvedTuple eRT = new EntityResolvedTuple(newData, uFind, similarities, keyIndex, noOfFields);	
 		eRT.setComparisons(comparisons);
 		eRT.setMatches(matches.size());
