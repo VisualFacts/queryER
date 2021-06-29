@@ -53,6 +53,14 @@ public class QueryEngine {
 	private static DumpDirectories dumpDirectories  = null;
 
 
+	public QueryEngine(String modelPath) {
+		calciteConnectionString = "jdbc:calcite:model=" + modelPath;
+	}
+
+	public QueryEngine() {
+		super();
+	}
+
 	public void initialize() throws IOException, SQLException {
 		setProperties();
 		// Create output folders
@@ -106,7 +114,6 @@ public class QueryEngine {
 		System.out.println("Running query...");
 		ResultSet resultSet;
 		Connection connection = calciteConnectionPool.getConnection();
-		
 		double queryStartTime = System.currentTimeMillis();
 		resultSet = connection.createStatement().executeQuery(query);
 		double queryEndTime = System.currentTimeMillis();
@@ -122,17 +129,19 @@ public class QueryEngine {
 		properties = loadProperties();
 		if(!properties.isEmpty()) {
             schemaName = properties.getProperty(SCHEMA_NAME);
-            calciteConnectionString = properties.getProperty(CALCITE_CONNECTION);
-            if(calciteConnectionString == null) {
-            	URL res = QueryEngine.class.getClassLoader().getResource("model.json");
-            	File file = null;
-				try {
-					file = Paths.get(res.toURI()).toFile();
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				calciteConnectionString = "jdbc:calcite:model=" + file.getAbsolutePath();
+            if(calciteConnectionString.equals("")) {
+	            calciteConnectionString = properties.getProperty(CALCITE_CONNECTION);
+	            if(calciteConnectionString == null) {
+	            	URL res = QueryEngine.class.getClassLoader().getResource("model.json");
+	            	File file = null;
+					try {
+						file = Paths.get(res.toURI()).toFile();
+					} catch (URISyntaxException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					calciteConnectionString = "jdbc:calcite:model=" + file.getAbsolutePath();
+	            }
             }
 			dumpPath = properties.getProperty(DUMP_PATH);
 		}

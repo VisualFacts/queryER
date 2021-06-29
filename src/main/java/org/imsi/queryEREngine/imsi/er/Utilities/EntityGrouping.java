@@ -151,8 +151,10 @@ public class EntityGrouping {
 			if(similar.size() > 0) {
 				clusterColumnSimilarity = (HashMap<String, Double>) getDistanceMeasure(clusterColumns);
 				for(String col : fieldNames) clusterColumnSimilarity.putIfAbsent(col, 0.0);
+				Map<Integer, HashMap<Integer, Double>> clusterSimilarities  = new HashMap<>();
 				columnSimilarities.add(clusterColumnSimilarity);
-				Map<Integer, HashMap<Integer, Double>> clusterSimilarities = similar.stream()
+				if(similarities != null)
+					similar.stream()
 					    .filter(similarities::containsKey)
 					    .collect(Collectors.toMap(Function.identity(), similarities::get));
 				BigVizCluster cluster = new BigVizCluster(entityGroup, clusterColumnSimilarity, clusterColumns, clusterSimilarities, groupedObject);

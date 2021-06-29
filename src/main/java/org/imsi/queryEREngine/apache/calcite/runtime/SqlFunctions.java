@@ -1919,8 +1919,15 @@ public class SqlFunctions {
 			}
 
 			public static BigDecimal toBigDecimal(String s) {
-				if(s.isEmpty()) return new BigDecimal(0);
-				return new BigDecimal(s.trim());
+				String st = s.trim();
+				if(st.isEmpty()) return new BigDecimal(0);
+				try {
+					return new BigDecimal(st);
+				}
+				catch(Exception e) {
+					return new BigDecimal(st.replace(" ", ""));
+				}
+				
 			}
 
 			public static BigDecimal toBigDecimal(Number number) {

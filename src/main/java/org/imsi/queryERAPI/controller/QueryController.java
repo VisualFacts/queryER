@@ -71,7 +71,6 @@ public class QueryController {
 
 		ObjectMapper mapper = new ObjectMapper();
 		QueryEngine qe = new QueryEngine();
-
 		if(!this.query.contentEquals(q)) {
 			rs = qe.runQuery(q);		
 			if(rs != null) {
