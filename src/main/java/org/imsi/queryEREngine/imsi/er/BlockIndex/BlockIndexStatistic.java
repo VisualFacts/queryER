@@ -199,7 +199,8 @@ public class BlockIndexStatistic implements Serializable {
 	
 	
 	public void storeStatistics() throws IOException {
-		String blockIndexStatsDir = DumpDirectories.loadDirectories().getBlockIndexStatsDirPath();
+		DumpDirectories dumpDirectories = new DumpDirectories();
+		String blockIndexStatsDir = dumpDirectories.getBlockIndexStatsDirPath();
 		File file = new File(blockIndexStatsDir + tableName + ".json");
 		FileOutputStream fOut = null;
 

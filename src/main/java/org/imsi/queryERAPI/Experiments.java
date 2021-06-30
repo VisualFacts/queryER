@@ -80,7 +80,6 @@ public class Experiments {
 		// Create output folders
 		dumpDirectories = new DumpDirectories(dumpPath);
 		dumpDirectories.generateDumpDirectories();
-		dumpDirectories.storeDumpMap();
 		// Create Connection
 		calciteConnectionPool = new CalciteConnectionPool();
 		CalciteConnection calciteConnection = null;

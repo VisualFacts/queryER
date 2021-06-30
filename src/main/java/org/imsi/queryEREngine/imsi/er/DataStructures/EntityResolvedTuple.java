@@ -32,7 +32,7 @@ public class EntityResolvedTuple<T> extends AbstractEnumerable<T> {
 	private double revUFCreationTime;
 	private Integer keyIndex;
 	private Integer noOfAttributes;
-	private DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
+	private DumpDirectories dumpDirectories = new DumpDirectories();
 	
 	public EntityResolvedTuple(HashMap<Integer, Object[]> data, UnionFind uFind, Integer keyIndex, Integer noOfAttributes) {
 		super();

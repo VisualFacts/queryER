@@ -11,7 +11,7 @@
 	<groupId>org.imsi</groupId>
 	<artifactId>queryER-API</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>queryER-API</name>
 	<description>QueryER API</description>
 

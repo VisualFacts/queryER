@@ -78,7 +78,7 @@ public class DeduplicationExecution<T> {
 	private static boolean runEP = true;
 	private static boolean runLinks = true;
 	private static double filterParam = 0.0;
-	private static DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
+	private static DumpDirectories dumpDirectories = new DumpDirectories();
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> EntityResolvedTuple deduplicateEnumerator(Enumerable<T> enumerable, String tableName,
     		Integer key, String source, List<CsvFieldType> fieldTypes, AtomicBoolean ab) {

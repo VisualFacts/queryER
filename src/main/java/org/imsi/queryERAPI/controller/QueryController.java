@@ -35,7 +35,7 @@ public class QueryController {
 	ResultSet rs;
 	CachedRowSet rowset;
 	List<ObjectNode> results = null;
-	DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
+	DumpDirectories dumpDirectories = new DumpDirectories();
 	String query = "";
 	@PostMapping("/query")
 	public ResponseEntity<String> query(@RequestParam(value = "q", required = true) String q,

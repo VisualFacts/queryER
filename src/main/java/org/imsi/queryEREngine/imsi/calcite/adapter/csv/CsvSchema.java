@@ -50,7 +50,7 @@ public class CsvSchema extends AbstractSchema {
 	private final File directoryFile;
 	private final CsvTable.Flavor flavor;
 	private Map<String, Table> tableMap;
-	DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
+	DumpDirectories dumpDirectories = new DumpDirectories();
 
 	/**
 	 * Creates a CSV schema.

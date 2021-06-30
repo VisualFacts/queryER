@@ -11,45 +11,44 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
-public class DumpDirectories implements Serializable{
+public class DumpDirectories {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8378846365677820437L;
-	private String dataDirPath;
-	private String logsDirPath;
-	private  String blockDirPath;
-	private  String blockIndexDirPath;
-	private  String groundTruthDirPath;
-	private  String tableStatsDirPath;
-	private  String blockIndexStatsDirPath;
-	private  String linksDirPath;
-	private String similaritiesDirPath;
-	private String liFilePath;
-	private  String qIdsPath;
-	private String vetiPath;
+	private static  String dataDirPath;
+	private static String logsDirPath;
+	private static String blockDirPath;
+	private static String blockIndexDirPath;
+	private static String groundTruthDirPath;
+	private static String tableStatsDirPath;
+	private static String blockIndexStatsDirPath;
+	private static String linksDirPath;
+	private static String similaritiesDirPath;
+	private static String liFilePath;
+	private static String qIdsPath;
+	private static String vetiPath;
 
 	public DumpDirectories() {
 		super();
 	}
 
-	public static DumpDirectories loadDirectories() {
-
-		if(new File("/usr/local/share/data/dumpMap.json").exists()) {
-			ObjectMapper objectMapper = new ObjectMapper();  
-			try {
-				return objectMapper.readValue(new File("/usr/local/share/data/dumpMap.json"),	DumpDirectories.class);
-
-			} catch (JsonParseException e) {
-				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return new DumpDirectories("");
-	}
+//	public static DumpDirectories loadDirectories() {
+//		if(new File(dataDirPath + "/dumpMap.json").exists()) {
+//			ObjectMapper objectMapper = new ObjectMapper();  
+//			try {
+//				return objectMapper.readValue(new File(dataDirPath + "/dumpMap.json"),	DumpDirectories.class);
+//
+//			} catch (JsonParseException e) {
+//				e.printStackTrace();
+//			} catch (JsonMappingException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return new DumpDirectories("");
+//	}
+	
 	public DumpDirectories(String dumpPath){
 		dataDirPath = dumpPath;
 		logsDirPath = dumpPath + "/logs/";
@@ -106,19 +105,19 @@ public class DumpDirectories implements Serializable{
 
 	}
 
-	public void storeDumpMap() throws IOException {
-		File file = new File("/usr/local/share/data/dumpMap.json");
-		FileOutputStream fOut = null;
-
-		fOut = new FileOutputStream(file);
-
-		ObjectMapper mapper = new ObjectMapper();
-
-		JsonGenerator jGenerator = null;
-		jGenerator = mapper.getFactory().createGenerator(fOut);
-		mapper.writeValue(jGenerator, this);
-		jGenerator.close();
-	}
+//	public void storeDumpMap() throws IOException {
+//		File file = new File("/usr/local/share/data/dumpMap.json");
+//		FileOutputStream fOut = null;
+//
+//		fOut = new FileOutputStream(file);
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//
+//		JsonGenerator jGenerator = null;
+//		jGenerator = mapper.getFactory().createGenerator(fOut);
+//		mapper.writeValue(jGenerator, this);
+//		jGenerator.close();
+//	}
 	
 	public String getDataDirPath() {
 		return dataDirPath;

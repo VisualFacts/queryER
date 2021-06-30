@@ -2478,7 +2478,7 @@ public class SqlToRelConverter {
 			fieldTypes = ((CsvTableScan) tableRel).csvTable.getFieldTypes();
 		}
 		bb.setRoot(tableRel, true);
-		DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
+		DumpDirectories dumpDirectories = new DumpDirectories();
 		if(deduplicate) {
 			 List<String> tableName = new ArrayList<>(2);
 		      tableName.add(table.getQualifiedName().get(0));

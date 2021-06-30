@@ -89,7 +89,6 @@ public class TestExperiment {
 	public static void main(String[] args) throws IOException {
 		dumpDirectories = new DumpDirectories(dumpPath);
 		dumpDirectories.generateDumpDirectories();
-		dumpDirectories.storeDumpMap();
 		String path = "all/people200k.csv";
 		File file = new File(path);
 		File directoryFile = new File("all");

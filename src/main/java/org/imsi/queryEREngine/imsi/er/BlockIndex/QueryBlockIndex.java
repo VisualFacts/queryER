@@ -75,7 +75,7 @@ public class QueryBlockIndex extends BlockIndex {
 	@SuppressWarnings("unchecked")
 	public List<AbstractBlock> joinBlockIndices(String name, boolean doER) {
 		if(doER) {
-			DumpDirectories dumpDirectories = DumpDirectories.loadDirectories();
+			DumpDirectories dumpDirectories = new DumpDirectories();
 			final Map<String, Set<Integer>> bBlocks = (Map<String, Set<Integer>>) SerializationUtilities
 					.loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + name + "InvertedIndex");
 			bBlocks.keySet().retainAll(this.invertedIndex.keySet());
