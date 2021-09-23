@@ -224,14 +224,15 @@ public class BlockStatistics implements Constants {
             while (iterator.hasNext()) {
                 abstractDP.isSuperfluous(iterator.next());
             }
+
         }
 
         detectedDuplicates = abstractDP.getNoOfDuplicates();
         pc = ((double)abstractDP.getNoOfDuplicates()) / abstractDP.getExistingDuplicates();
         pq = abstractDP.getNoOfDuplicates() / totalComparisons;
-//        System.out.println("Detected duplicates\t:\t" + abstractDP.getNoOfDuplicates());
-//        System.out.println("PC\t:\t" + pc);
-//        System.out.println("PQ\t:\t" + pq);
+        System.out.println("Detected duplicates\t:\t" + abstractDP.getNoOfDuplicates());
+        System.out.println("PC\t:\t" + pc);
+        System.out.println("PQ\t:\t" + pq);
         csvWriter.append(abstractDP.getNoOfDuplicates() + "," + pc + "," + pq + ",");
         
     }
@@ -250,9 +251,9 @@ public class BlockStatistics implements Constants {
         detectedDuplicates = (int) noOfDuplicates;
         pc = noOfDuplicates / abstractDP.getExistingDuplicates();
         pq = noOfDuplicates / totalComparisons;
-        //System.out.println("Detected duplicates\t:\t" + noOfDuplicates);
-        //System.out.println("PC\t:\t" + pc);
-        //System.out.println("PQ\t:\t" + pq);
+        System.out.println("Detected duplicates\t:\t" + noOfDuplicates);
+        System.out.println("PC\t:\t" + pc);
+        System.out.println("PQ\t:\t" + pq);
         csvWriter.append(Double.toString(noOfDuplicates) + "," + 
         		Double.toString(pc) + "," + Double.toString(pq) + ",");
 

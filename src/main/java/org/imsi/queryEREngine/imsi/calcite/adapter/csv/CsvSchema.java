@@ -49,7 +49,7 @@ import com.univocity.parsers.csv.CsvWriterSettings;
 public class CsvSchema extends AbstractSchema {
 	private final File directoryFile;
 	private final CsvTable.Flavor flavor;
-	private Map<String, Table> tableMap;
+	public static Map<String, Table> tableMap;
 	DumpDirectories dumpDirectories = new DumpDirectories();
 
 	/**
@@ -210,43 +210,6 @@ public class CsvSchema extends AbstractSchema {
 
 	}
 
-	private void createVETI(Source source, Integer key, String tableName){
-		Map<Integer, Long> veti = new HashMap<>();
-		System.out.println("Creating VETI");
-		CsvParserSettings parserSettings = new CsvParserSettings();
-		CsvWriterSettings writerSettings = new CsvWriterSettings();
-		File sourceFile = new File(source.path());
-		String sourceSansCsv = source.path().substring(0, source.path().indexOf('.'));
-		
-		//You can configure the parser to automatically detect what line separator sequence is in the input
-		parserSettings.setNullValue("");
-		parserSettings.setEmptyValue("");
-		parserSettings.setDelimiterDetectionEnabled(true);
-		parserSettings.selectIndexes(key);
-		parserSettings.setColumnReorderingEnabled(false);
-		
-		CsvParser parser = new CsvParser(parserSettings);
-		parser.beginParsing(sourceFile, Charset.forName("US-ASCII"));
-		// Get header
-		String[] row;
-		long rowOffset = parser.getContext().currentChar() - 1;
-		while ((row = parser.parseNext()) != null) {
-			try {
-				// index row
-				rowOffset = parser.getContext().currentChar() - 1;
-				veti.put(Integer.parseInt(row[key]), rowOffset);
-			} catch (Exception e) {
-				continue;
-			} finally {
-
-			}
-		}
-		parser.stopParsing();
-		SerializationUtilities.storeSerializedObject(veti, dumpDirectories.getVetiPath() + tableName);
-		System.out.println("VETI Created");
-
-		
-	}
 
 	/** Creates table */
 	private CsvTranslatableTable createTable(Source source, String name) {

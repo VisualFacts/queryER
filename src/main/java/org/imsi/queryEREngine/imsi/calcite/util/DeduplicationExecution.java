@@ -79,6 +79,8 @@ public class DeduplicationExecution<T> {
 	private static boolean runLinks = true;
 	private static double filterParam = 0.0;
 	private static DumpDirectories dumpDirectories = new DumpDirectories();
+	public static List<AbstractBlock> blocks;
+	public static Set<Integer> qIds = new HashSet<>();
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> EntityResolvedTuple deduplicateEnumerator(Enumerable<T> enumerable, String tableName,
     		Integer key, String source, List<CsvFieldType> fieldTypes, AtomicBoolean ab) {
@@ -221,10 +223,10 @@ public class DeduplicationExecution<T> {
         	blockQids = queryBlockIndex.blocksToEntities(blocks);
         totalIds.addAll(blockQids);
         totalIds.addAll(qIds);
-        double storeTime = storeIds(qIds);
+        DeduplicationExecution.qIds = qIds;
         // To find ground truth statistics
-        storeTime = storeBlocks(blocks, tableName);
-        double tableScanStartTime = System.currentTimeMillis() - storeTime;
+        DeduplicationExecution.blocks = blocks;
+        double tableScanStartTime = System.currentTimeMillis();
         
         RandomAccessReader randomAccessReader = null;
         try {
@@ -237,7 +239,7 @@ public class DeduplicationExecution<T> {
         String tableScanTime = Double.toString((tableScanEndTime - tableScanStartTime) / 1000);
        
 
-        double comparisonStartTime = System.currentTimeMillis() - storeTime;
+        double comparisonStartTime = System.currentTimeMillis();
         
         // Merge queryData with dataWithLinks
         queryData = mergeMaps(queryData, dataWithLinks);
@@ -356,6 +358,7 @@ public class DeduplicationExecution<T> {
     private static HashMap<Integer, Object[]> createMap(AbstractEnumerable<Object[]> enumerable, Integer key) {
         List<Object[]> entityList = enumerable.toList();
         HashMap<Integer, Object[]> entityMap = new HashMap<Integer, Object[]>();
+       
         for (Object[] entity : entityList) {
             entityMap.put(Integer.parseInt(entity[key].toString()), entity);
         }

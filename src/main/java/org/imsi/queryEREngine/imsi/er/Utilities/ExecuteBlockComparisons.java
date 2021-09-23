@@ -23,6 +23,7 @@ public class ExecuteBlockComparisons<T> {
 	private HashMap<Integer, Object[]> newData = new HashMap<>();
 	HashMap<Integer, Long> veti = new HashMap<>();
 	private RandomAccessReader randomAccessReader;
+	public static Set<String> matches;
 	protected static final Logger DEDUPLICATION_EXEC_LOGGER =  LoggerFactory.getLogger(DeduplicationExecution.class);
 	CsvParser parser =  null;
 	private Integer noOfFields;
@@ -62,12 +63,13 @@ public class ExecuteBlockComparisons<T> {
 		int comparisons = 0;
 		UnionFind uFind = new UnionFind(qIds);
 		
-		Set<String> matches = new HashSet<>();
 		Set<AbstractBlock> nBlocks = new HashSet<>(blocks);
 		Set<String> uComparisons = new HashSet<>();
 		HashMap<Integer, HashMap<Integer,Double>> similarities = new HashMap<>();
 		this.noOfFields = noOfFields;
 		double compTime = 0.0;
+        matches = new HashSet<>();
+
 		for (AbstractBlock block : nBlocks) {
 			ComparisonIterator iterator = block.getComparisonIterator();
 			while (iterator.hasNext()) {
@@ -111,7 +113,6 @@ public class ExecuteBlockComparisons<T> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(similarities);
 		EntityResolvedTuple eRT = new EntityResolvedTuple(newData, uFind, similarities, keyIndex, noOfFields);	
 		eRT.setComparisons(comparisons);
 		eRT.setMatches(matches.size());

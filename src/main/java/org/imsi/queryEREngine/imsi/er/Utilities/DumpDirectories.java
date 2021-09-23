@@ -102,6 +102,9 @@ public class DumpDirectories {
 		if(!vetiDir.exists()) {
 			FileUtils.forceMkdir(vetiDir); //create directory
 		}
+		if(!blockDir.exists()) {
+			FileUtils.forceMkdir(blockDir); //create directory
+		}
 
 	}
 

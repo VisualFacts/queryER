@@ -160,11 +160,19 @@ public class CsvEnumerator<E> implements Enumerator<E> {
 		for (;;) {
 			long rowOffset = parser.getContext().currentChar() - 1;
 			final String[] strings = parser.parseNext();
+//			try {
+//				System.out.print(rowOffset + " = ");
+//	        	for(String s : strings) System.out.print(s + ", ");
+//	        	System.out.println();
+//			}
+//			catch(Exception e) {}
+			
 			if (strings == null) {
 				current = null;
 				return false;
 			}
-			strings[0] = Long.toString(rowOffset);
+			if(!source.path().contains("ground_truth"))
+				strings[0] = Long.toString(rowOffset);
 			current = (E) strings;
 			return true;
 

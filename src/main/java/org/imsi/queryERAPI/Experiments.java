@@ -265,7 +265,8 @@ public class Experiments {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static void calculateGroundTruth(CalciteConnection calciteConnection, String query, String schemaName, FileWriter csvWriter) throws SQLException, IOException {
+	private static void calculateGroundTruth(CalciteConnection calciteConnection,
+			String query, String schemaName, FileWriter csvWriter) throws SQLException, IOException {
 		// Trick to get table name from a single sp query
 		if(!query.contains("DEDUP")) return;
 		final String tableName;
@@ -336,6 +337,7 @@ public class Experiments {
         FileUtils.forceDelete(new File(dumpDirectories.getBlockDirPath() + tableName)); //delete directory
 		BlockStatistics bStats = new BlockStatistics(blocks, duplicatePropagation, csvWriter);
 		bStats.applyProcessing();		
+		
 	}
 
 	private static void exportQueryContent(ResultSet queryResults, String path) throws SQLException, IOException {

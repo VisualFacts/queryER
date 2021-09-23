@@ -15,6 +15,7 @@ public class UnilateralDuplicatePropagation extends AbstractDuplicatePropagation
     
     public UnilateralDuplicatePropagation (Set<IdDuplicates> matches) {
         super(matches);
+        System.out.println(matches);
         detectedDuplicates = new HashSet<IdDuplicates>(2*matches.size());
     }
     
@@ -36,8 +37,10 @@ public class UnilateralDuplicatePropagation extends AbstractDuplicatePropagation
                 detectedDuplicates.contains(duplicatePair2)) {
             return true;
         }
+        
         if (duplicates.contains(duplicatePair1) || 
                 duplicates.contains(duplicatePair2)) {
+        	
             if (comparison.getEntityId1() < comparison.getEntityId2()) {
                 detectedDuplicates.add(new IdDuplicates(comparison.getEntityId1(), comparison.getEntityId2()));
             } else {
