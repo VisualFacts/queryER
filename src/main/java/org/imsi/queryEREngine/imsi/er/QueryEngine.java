@@ -257,7 +257,7 @@ public class QueryEngine {
 			System.out.println("Will execute " + inIds.size() + " queries");
 
 			for(String inIdd : inIds) {
-				String groundTruthQuery = "SELECT id_d, id_s FROM "  + "ground_truth.ground_truth_" + tableName +
+				String groundTruthQuery = "SELECT id_d, id_s FROM " + schemaName + ".ground_truth_" + tableName +
 						" WHERE id_s IN " + inIdd + " OR id_d IN " + inIdd ;
 				ResultSet gtQueryResults = runQuery(groundTruthQuery);
 				while (gtQueryResults.next()) {
