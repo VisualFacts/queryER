@@ -11,14 +11,14 @@ In the default configuration the framework asks the user for queries, and does n
 For debugging and experimental purposes, the following can also be provided.<br>
 **query.runs**{Integer}<br/>
 **query.filepath=resources/tests/test_synth.sql** {Path to an sql file, if not provided the framework will ask the user for a query input}<br/>
-**ground_truth.calculate**:{Boolean} Whether to calculate Ground Truth and find the Pair Completeness. Used only for SP queries. In case of ground_truth calculation the ground_truth data must be on the data folder.<br/>
+**ground_truth.calculate**:{Boolean} Whether to calculate Ground Truth and find the Pair Completeness. Used only for SP queries. 
+<b>BEWARE:</b>In case of ground_truth calculation the ground_truth data must be on the same folder as the data files.<br/>
 
 ### Queries
 The queries that were used for the experimental evaluation can be found in the queries folder.
 
-
 ### Datasets
-The used datasets can be found <a href="https://imisathena-my.sharepoint.com/personal/gpapas_imis_athena-innovation_gr/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fgpapas%5Fimis%5Fathena%2Dinnovation%5Fgr%2FDocuments%2FVisualFacts%2FImplementation%2FWP2%2FQuery%20ER%2Fdata&originalPath=aHR0cHM6Ly9pbWlzYXRoZW5hLW15LnNoYXJlcG9pbnQuY29tLzpmOi9nL3BlcnNvbmFsL2dwYXBhc19pbWlzX2F0aGVuYS1pbm5vdmF0aW9uX2dyL0VtSUJUNTJkcE5CRnF5bElEeEtZdXZVQnNPZ093RUp5dW9TS2lQUkdHQWppRGc_cnRpbWU9Vks0SzJpVjAyRWc">here</a> and need to be downloaded and placed on the folder defined by model.json, ex. "home/user/dsd". 
+The used datasets can be found <a href="https://imisathena-my.sharepoint.com/:f:/g/personal/bstam_athenarc_gr/EpNmNCfR_TBHjsQ2RES41noBQ_tMLB0YWmIgFxC3dP6M3Q?e=vk7Ezx">here</a>. Depending on the dataset the user wants to test, model.json must point to the specific folder, ex. "home/user/dsd". 
 
 ### Run
 To create the jar file, run: **`mvn package`**
