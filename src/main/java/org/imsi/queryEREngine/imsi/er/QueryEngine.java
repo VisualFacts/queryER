@@ -287,18 +287,6 @@ public class QueryEngine {
 		System.out.println("Existing Duplicates\t:\t" + duplicatePropagation.getDuplicates().size());
 		List<AbstractBlock> blocks = DeduplicationExecution.blocks;
 		duplicatePropagation.resetDuplicates();
-//		for(AbstractBlock block : blocks) {
-//			DecomposedBlock uBlock = (DecomposedBlock) block;
-//			for (int entity : uBlock.getEntities1())
-//				System.out.println(entity);
-//				//System.out.print(String.valueOf(offsetToId.get(entity)) + " ");
-//			System.out.println();
-//			for (int entity : uBlock.getEntities2())
-//				System.out.println(entity);
-//				//System.out.print(String.valueOf(offsetToId.get(entity)) + " ");
-//			System.out.println();
-//		}
-		System.out.println(blocks.size());		
 		BlockStatistics bStats = new BlockStatistics(blocks, duplicatePropagation, csvWriter);
 		bStats.applyProcessing();		
 		

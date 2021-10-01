@@ -15,7 +15,6 @@ public class UnilateralDuplicatePropagation extends AbstractDuplicatePropagation
     
     public UnilateralDuplicatePropagation (Set<IdDuplicates> matches) {
         super(matches);
-        System.out.println(matches);
         detectedDuplicates = new HashSet<IdDuplicates>(2*matches.size());
     }
     

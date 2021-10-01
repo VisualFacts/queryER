@@ -1,4 +1,4 @@
-SELECT 1 FROM dsd.venues
+SELECT 1 FROM dsd.publications
 
 --Q1
 --Q2 

@@ -246,7 +246,7 @@
 		</dependency>
 	</dependencies>
 
- 	<!-- <build>
+ 	 <build>
  
 		<plugins>
 			 <plugin>
@@ -268,10 +268,10 @@
 			</plugin>
 						
 		</plugins>	
-	</build> -->
+	</build> 
 
 
- <build>
+ <!-- <build>
     	<pluginManagement>
 	        <plugins>
 	            <plugin>
@@ -324,6 +324,6 @@
 				</plugin>
 	        </plugins>
         </pluginManagement>
-    </build>
+    </build> -->
    
 </project>

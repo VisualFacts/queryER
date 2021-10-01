@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,14 +18,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.imsi.queryEREngine.apache.calcite.jdbc.CalciteConnection;
+import org.imsi.queryEREngine.apache.calcite.schema.Table;
 import org.imsi.queryEREngine.apache.calcite.sql.parser.SqlParseException;
 import org.imsi.queryEREngine.apache.calcite.tools.RelConversionException;
 import org.imsi.queryEREngine.apache.calcite.tools.ValidationException;
+import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchema;
+import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvTranslatableTable;
 import org.imsi.queryEREngine.imsi.calcite.util.DeduplicationExecution;
 import org.imsi.queryEREngine.imsi.er.ConnectionPool.CalciteConnectionPool;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
@@ -33,9 +38,14 @@ import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.ComparisonRefinement.Abstr
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.ComparisonRefinement.UnilateralDuplicatePropagation;
 import org.imsi.queryEREngine.imsi.er.Utilities.BlockStatistics;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
+import org.imsi.queryEREngine.imsi.er.Utilities.ExecuteBlockComparisons;
+import org.imsi.queryEREngine.imsi.er.Utilities.OffsetIdsMap;
 import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -240,7 +250,7 @@ public class Experiments {
 			System.out.println("Finished query: " + index + " runs: " + totalRuns + " time: " + totalRunTime/totalRuns);
 			// Get the ground truth for this query
 			if(calculateGroundTruth)
-				calculateGroundTruth(calciteConnection, query, schemaName, csvWriter);
+				calculateGroundTruth(calciteConnection, query, csvWriter);
 			csvWriter.append("\n");
 			csvWriter.flush();
 			index ++;
@@ -264,9 +274,51 @@ public class Experiments {
 		
 	}
 	
+	public static CsvParser openCsv(String tablePath) throws IOException {
+		// The settings object provides many configuration options
+		CsvParserSettings parserSettings = new CsvParserSettings();
+		//You can configure the parser to automatically detect what line separator sequence is in the input
+		parserSettings.setNullValue("");
+		parserSettings.setEmptyValue("");
+		parserSettings.setDelimiterDetectionEnabled(true);
+		CsvParser parser = new CsvParser(parserSettings);
+		parser.beginParsing(new File(tablePath), Charset.forName("US-ASCII"));
+        parser.parseNext();  //skip header row
+		return parser;
+	}
+	
+	private static OffsetIdsMap offsetToIds(String tableName) throws IOException {
+    	
+		Map<String, Table> tableMap = CsvSchema.tableMap;
+		Table table = tableMap.get(tableName);
+		CsvTranslatableTable csvTable = (CsvTranslatableTable) table;
+        CsvParser parser = openCsv(csvTable.getSource().path());
+        String[] row;
+        HashMap<Integer, Integer> offsetToId = new HashMap<>();
+        HashMap<Integer, Integer> idToOffset = new HashMap<>();
+        
+    	long rowOffset = parser.getContext().currentChar() - 1;
+        while ((row = parser.parseNext()) != null) {
+        	int rowOffsetInt = (int) rowOffset;
+        	try {
+	        	Integer id = Integer.parseInt(row[csvTable.getKey()]);
+	        	offsetToId.put(rowOffsetInt, id);
+//	        	System.out.print(rowOffsetInt + " = ");
+//	        	for(String s : row) System.out.print(s + ", ");
+//	        	System.out.println();
+	        	idToOffset.put(id, rowOffsetInt);
+        	}
+        	catch(Exception e) {
+        	}
+        	
+        	rowOffset = parser.getContext().currentChar() - 1;
+        }
+        return new OffsetIdsMap(offsetToId, idToOffset);
+    }
+	
 	@SuppressWarnings("unchecked")
-	private static void calculateGroundTruth(CalciteConnection calciteConnection,
-			String query, String schemaName, FileWriter csvWriter) throws SQLException, IOException {
+	private static void calculateGroundTruth(CalciteConnection calciteConnection, String query, FileWriter csvWriter) throws SQLException, IOException {        
+
 		// Trick to get table name from a single sp query
 		if(!query.contains("DEDUP")) return;
 		final String tableName;
@@ -277,9 +329,13 @@ public class Experiments {
 			tableName = query.substring(query.indexOf(schemaName) + schemaName.length() + 1, query.length()).trim();;
 		}
 		String name = query.replace("'", "").replace("*","ALL").replace(">", "BIGGER").replace("<", "LESS");
-	
+		OffsetIdsMap offsetIdsMap = offsetToIds(tableName);
+    	
+    	HashMap<Integer, Integer> offsetToId = offsetIdsMap.offsetToId;
+    	HashMap<Integer, Integer> idsToOffset = offsetIdsMap.idToOffset;
 		// Construct ground truth query
 		Set<IdDuplicates> groundDups = new HashSet<IdDuplicates>();
+		Set<String> groundMatches = new HashSet<>();
 		File blocksDir = new File(dumpDirectories.getGroundTruthDirPath() + name);
 		if(blocksDir.exists()) {
 			groundDups = (Set<IdDuplicates>) SerializationUtilities.loadSerializedObject(dumpDirectories.getGroundTruthDirPath() + name);
@@ -291,16 +347,18 @@ public class Experiments {
 			try {
 				qCalciteConnection = (CalciteConnection) calciteConnectionPool.setUp(calciteConnectionString);
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			Set<Integer> qIds = (Set<Integer>) SerializationUtilities.loadSerializedObject(dumpDirectories.getqIdsPath());
+			Set<Integer> qIds = DeduplicationExecution.qIds;
 			List<Set<Integer>> inIdsSets = new ArrayList<>();
 			Set<Integer> currSet = null;
 			for (Integer value : qIds) {
+				
 			    if (currSet == null || currSet.size() == groundTruthDivide)
 			    	inIdsSets.add(currSet = new HashSet<>());
-			    currSet.add(value);
+			    Integer id = offsetToId.get(value);
+			    if(id == null) continue;//  bug fix
+				currSet.add(id);
 			}
 			List<String> inIds = new ArrayList<>();
 			inIdsSets.forEach(inIdSet -> {
@@ -314,29 +372,44 @@ public class Experiments {
 			System.out.println("Will execute " + inIds.size() + " queries");
 
 			for(String inIdd : inIds) {
-				String groundTruthQuery = "SELECT id_d, id_s FROM ground_truth.ground_truth_" + tableName +
+				String groundTruthQuery = "SELECT id_d, id_s FROM " + schemaName + ".ground_truth_" + tableName +
 						" WHERE id_s IN " + inIdd + " OR id_d IN " + inIdd ;
 				ResultSet gtQueryResults = runQuery(calciteConnection, groundTruthQuery);
 				while (gtQueryResults.next()) {
 					Integer id_d = Integer.parseInt(gtQueryResults.getString("id_d"));
 					Integer id_s = Integer.parseInt(gtQueryResults.getString("id_s"));
-					IdDuplicates idd = new IdDuplicates(id_d, id_s);
+					Integer offset_d = idsToOffset.get(id_d);
+					Integer offset_s = idsToOffset.get(id_s);
+					if(offset_d == null || offset_s == null) continue; //  bug fix
+					IdDuplicates idd = new IdDuplicates(offset_d, offset_s);
 					groundDups.add(idd);
+					
+					String uniqueComp = "";
+					if (offset_d > offset_s)
+						uniqueComp = offset_d + "u" + offset_s;
+					else
+						uniqueComp = offset_s + "u" + offset_d;
+					if (groundMatches.contains(uniqueComp))
+						continue;
+					groundMatches.add(uniqueComp);
 				}		
 			}
-			SerializationUtilities.storeSerializedObject(groundDups, dumpDirectories.getGroundTruthDirPath() + name);
 		}
 		
 
 		final AbstractDuplicatePropagation duplicatePropagation = new UnilateralDuplicatePropagation(groundDups);
 		System.out.println("Existing Duplicates\t:\t" + duplicatePropagation.getDuplicates().size());
-
+		List<AbstractBlock> blocks = DeduplicationExecution.blocks;
 		duplicatePropagation.resetDuplicates();
-		List<AbstractBlock> blocks = (List<AbstractBlock>) SerializationUtilities.loadSerializedObject(dumpDirectories.getBlockDirPath() + tableName);
-		//remove file now
-        FileUtils.forceDelete(new File(dumpDirectories.getBlockDirPath() + tableName)); //delete directory
 		BlockStatistics bStats = new BlockStatistics(blocks, duplicatePropagation, csvWriter);
 		bStats.applyProcessing();		
+		
+		Set<String> matches = ExecuteBlockComparisons.matches;
+		double sz_before = matches.size();
+		matches.removeAll(groundMatches);
+		double sz_after = matches.size();
+		System.out.println("ACC\t:\t " + sz_after/sz_before);
+		csvWriter.flush();
 		
 	}
 
