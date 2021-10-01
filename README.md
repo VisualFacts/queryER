@@ -27,3 +27,6 @@ java -jar ./target/queryER-API-2.0.0-runnable.jar
 
 ### Results
 The query results are dumped to a csv file located at "./data/queryResults.csv"
+
+### Online Tool
+A working demo of queryER can be found online [here](http://queryer.imsi.athenarc.gr)
