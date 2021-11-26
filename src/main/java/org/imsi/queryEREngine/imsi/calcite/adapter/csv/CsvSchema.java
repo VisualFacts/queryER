@@ -193,20 +193,20 @@ public class CsvSchema extends AbstractSchema {
 			System.out.println("Block Index already created!");
 			blockIndex.loadBlockIndex(dumpDirectories.getBlockIndexDirPath(), tableName);
 			ObjectMapper objectMapper = new ObjectMapper();  
-			try {
-				blockIndex.setBlockIndexStatistic(objectMapper.readValue(new File(dumpDirectories.getBlockIndexStatsDirPath() + tableName + ".json"),
-						BlockIndexStatistic.class));
-			} catch (IOException e) {
-				BlockIndexStatistic blockIndexStatistic = new BlockIndexStatistic(blockIndex.getInvertedIndex(), 
-						blockIndex.getEntitiesToBlocks(), tableName);
-				blockIndex.setBlockIndexStatistic(blockIndexStatistic);
-				try {
-					blockIndexStatistic.storeStatistics();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-
-			}
+//			try {
+//				blockIndex.setBlockIndexStatistic(objectMapper.readValue(new File(dumpDirectories.getBlockIndexStatsDirPath() + tableName + ".json"),
+//						BlockIndexStatistic.class));
+//			} catch (IOException e) {
+//				BlockIndexStatistic blockIndexStatistic = new BlockIndexStatistic(blockIndex.getInvertedIndex(),
+//						blockIndex.getEntitiesToBlocks(), tableName);
+//				blockIndex.setBlockIndexStatistic(blockIndexStatistic);
+//				try {
+//					blockIndexStatistic.storeStatistics();
+//				} catch (IOException e1) {
+//					e1.printStackTrace();
+//				}
+//
+//			}
 
 		}
 		return blockIndex;
