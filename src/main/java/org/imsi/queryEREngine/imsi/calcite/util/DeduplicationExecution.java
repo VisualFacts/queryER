@@ -214,7 +214,8 @@ public class DeduplicationExecution<T> {
             }
             
         }
-
+        System.out.println(filterTime);
+        System.out.println(epTime);
         //Get ids of final entities, and add back qIds that were cut from m-blocking
         Set<Integer> blockQids = new HashSet<>();
         if(epFlag)
@@ -226,6 +227,7 @@ public class DeduplicationExecution<T> {
         DeduplicationExecution.qIds = qIds;
         // To find ground truth statistics
         DeduplicationExecution.blocks = blocks;
+        System.out.println(blocks.size());
         double tableScanStartTime = System.currentTimeMillis();
         
         RandomAccessReader randomAccessReader = null;
@@ -250,6 +252,7 @@ public class DeduplicationExecution<T> {
         entityResolvedTuple.mergeLinks(links, tableName, firstDedup, totalIds, runLinks);
         double links2EndTime = System.currentTimeMillis();
 
+        System.out.println("Executing comps");
         Integer executedComparisons = entityResolvedTuple.getComparisons();
         int matches = entityResolvedTuple.getMatches();
         int totalEntities = entityResolvedTuple.data.size();
