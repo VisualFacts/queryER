@@ -165,6 +165,7 @@ public class CsvSchema extends AbstractSchema {
 		BaseBlockIndex blockIndex = new BaseBlockIndex();
 		if((!new File(dumpDirectories.getBlockIndexDirPath() + tableName + "InvertedIndex").exists())) {
 			System.out.println("Creating Block Index..");
+			double start = System.currentTimeMillis();
 			AtomicBoolean ab = new AtomicBoolean();
 			ab.set(false);
 			@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -172,8 +173,10 @@ public class CsvSchema extends AbstractSchema {
 					table.getFieldTypes(), table.getKey());
 
 			blockIndex.createBlockIndex(enumerator, table.getKey());
-			System.out.println("created");
 			blockIndex.buildBlocks();
+			double end = System.currentTimeMillis();
+			System.out.println("Created in: " + (end - start)/1000 + " seconds");
+
 			blockIndex.sortIndex();
 			blockIndex.storeBlockIndex(dumpDirectories.getBlockIndexDirPath(), tableName );
 			BlockIndexStatistic blockIndexStatistic = new BlockIndexStatistic(blockIndex.getInvertedIndex(), 
