@@ -129,9 +129,17 @@ public class ExecuteBlockComparisons<T> {
 			randomAccessReader.seek(id);
 			String line = randomAccessReader.readLine();
 			if (line != null) {
-			    Object[] entity = parser.parseLine(line);
-			    newData.put(id, entity);
-			    return entity;
+				try {
+					Object[] entity = parser.parseLine(line);
+					newData.put(id, entity);
+					return entity;
+				}
+				catch(Exception e){
+					line = line.substring(1);
+					Object[] entity = parser.parseLine(line);
+					newData.put(id, entity);
+					return entity;
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
