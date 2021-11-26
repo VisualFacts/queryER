@@ -133,18 +133,22 @@ public class DeduplicationExecution<T> {
         double links1Time = (linksEndTime - linksStartTime) / 1000;
 
         String queryDataSize = Integer.toString(queryData.size());
-        
+
+        System.out.println("qbi");
         double blockingStartTime = System.currentTimeMillis();
         QueryBlockIndex queryBlockIndex = new QueryBlockIndex();
         queryBlockIndex.createBlockIndex(queryData, key);
         queryBlockIndex.buildQueryBlocks();
+        System.out.println("built");
         double blockingEndTime = System.currentTimeMillis();
         String blockingTime = Double.toString((blockingEndTime - blockingStartTime) / 1000);
-        boolean doER = queryData.size() > 0 ? true : false;        
-        
+        boolean doER = queryData.size() > 0 ? true : false;
+
+        System.out.println("bjoi");
         double blockJoinStart = System.currentTimeMillis();
         List<AbstractBlock> blocks = queryBlockIndex
                 .joinBlockIndices(tableName, doER);
+        System.out.println("bjoined");
         double blockJoinEnd = System.currentTimeMillis();
         String blockJoinTime = Double.toString((blockJoinEnd - blockJoinStart) / 1000);
 
