@@ -151,8 +151,10 @@ public class DeduplicationExecution<T> {
         System.out.println("bjoined");
         double blockJoinEnd = System.currentTimeMillis();
         String blockJoinTime = Double.toString((blockJoinEnd - blockJoinStart) / 1000);
+        System.out.println(runBP);
+        System.out.println(runBF);
+        System.out.println(runEP);
 
-        
         String blocksSize = Integer.toString(blocks.size());
         String blockSizes = getBlockSizes(blocks);
         String blockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
