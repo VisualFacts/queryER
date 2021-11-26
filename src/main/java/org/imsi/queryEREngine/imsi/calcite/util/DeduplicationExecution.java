@@ -157,7 +157,6 @@ public class DeduplicationExecution<T> {
         double blockPurgingStartTime = System.currentTimeMillis();
         
         ComparisonsBasedBlockPurging blockPurging = new ComparisonsBasedBlockPurging();
-        System.out.println(blocks.size());
         if(runBP) blockPurging.applyProcessing(blocks);
         
         double blockPurgingEndTime = System.currentTimeMillis();
@@ -172,7 +171,6 @@ public class DeduplicationExecution<T> {
 		for(AbstractBlock block : blocks) {
 			comps += block.getNoOfComparisons();
 		}
-		System.out.println(purgingBlockSizes);
         String filterBlocksSize = "";
         String filterTime = "";
         String filterBlockSizes = "";
@@ -192,7 +190,6 @@ public class DeduplicationExecution<T> {
 
             double blockFilteringEndTime = System.currentTimeMillis();
             filterBlocksSize = Integer.toString(blocks.size());
-            System.out.println(filterBlocksSize);
             filterTime = Double.toString((blockFilteringEndTime - blockFilteringStartTime) / 1000);
             filterBlockSizes = getBlockSizes(blocks);
             filterBlockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
@@ -215,8 +212,6 @@ public class DeduplicationExecution<T> {
             }
             
         }
-        System.out.println(filterTime);
-        System.out.println(epTime);
         //Get ids of final entities, and add back qIds that were cut from m-blocking
         Set<Integer> blockQids = new HashSet<>();
         if(epFlag)
@@ -228,7 +223,6 @@ public class DeduplicationExecution<T> {
         DeduplicationExecution.qIds = qIds;
         // To find ground truth statistics
         DeduplicationExecution.blocks = blocks;
-        System.out.println(blocks.size());
         double tableScanStartTime = System.currentTimeMillis();
         
         RandomAccessReader randomAccessReader = null;
@@ -245,7 +239,9 @@ public class DeduplicationExecution<T> {
         double comparisonStartTime = System.currentTimeMillis();
         
         // Merge queryData with dataWithLinks
+
         queryData = mergeMaps(queryData, dataWithLinks);
+        System.out.println("Executing comps");
         ExecuteBlockComparisons<?> ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
         EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
         double comparisonEndTime = System.currentTimeMillis();
@@ -253,7 +249,6 @@ public class DeduplicationExecution<T> {
         entityResolvedTuple.mergeLinks(links, tableName, firstDedup, totalIds, runLinks);
         double links2EndTime = System.currentTimeMillis();
 
-        System.out.println("Executing comps");
         Integer executedComparisons = entityResolvedTuple.getComparisons();
         int matches = entityResolvedTuple.getMatches();
         int totalEntities = entityResolvedTuple.data.size();
