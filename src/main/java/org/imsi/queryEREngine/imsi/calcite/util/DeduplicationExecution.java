@@ -134,26 +134,20 @@ public class DeduplicationExecution<T> {
 
         String queryDataSize = Integer.toString(queryData.size());
 
-        System.out.println("qbi");
         double blockingStartTime = System.currentTimeMillis();
         QueryBlockIndex queryBlockIndex = new QueryBlockIndex();
         queryBlockIndex.createBlockIndex(queryData, key);
         queryBlockIndex.buildQueryBlocks();
-        System.out.println("built");
         double blockingEndTime = System.currentTimeMillis();
         String blockingTime = Double.toString((blockingEndTime - blockingStartTime) / 1000);
         boolean doER = queryData.size() > 0 ? true : false;
 
-        System.out.println("bjoi");
         double blockJoinStart = System.currentTimeMillis();
         List<AbstractBlock> blocks = queryBlockIndex
                 .joinBlockIndices(tableName, doER);
-        System.out.println("bjoined");
         double blockJoinEnd = System.currentTimeMillis();
         String blockJoinTime = Double.toString((blockJoinEnd - blockJoinStart) / 1000);
-        System.out.println(runBP);
-        System.out.println(runBF);
-        System.out.println(runEP);
+
 
         String blocksSize = Integer.toString(blocks.size());
         String blockSizes = getBlockSizes(blocks);
@@ -163,6 +157,7 @@ public class DeduplicationExecution<T> {
         double blockPurgingStartTime = System.currentTimeMillis();
         
         ComparisonsBasedBlockPurging blockPurging = new ComparisonsBasedBlockPurging();
+        System.out.println(blocks.size());
         if(runBP) blockPurging.applyProcessing(blocks);
         
         double blockPurgingEndTime = System.currentTimeMillis();
@@ -177,7 +172,7 @@ public class DeduplicationExecution<T> {
 		for(AbstractBlock block : blocks) {
 			comps += block.getNoOfComparisons();
 		}
-		
+		System.out.println(purgingBlockSizes);
         String filterBlocksSize = "";
         String filterTime = "";
         String filterBlockSizes = "";
@@ -194,10 +189,10 @@ public class DeduplicationExecution<T> {
             if(tableName.contains("publications")) filterParam = 0.55;
 	        BlockFiltering bFiltering = new BlockFiltering(filterParam);
 	        if(runBF) bFiltering.applyProcessing(blocks);
-            
+
             double blockFilteringEndTime = System.currentTimeMillis();
             filterBlocksSize = Integer.toString(blocks.size());
-            
+            System.out.println(filterBlocksSize);
             filterTime = Double.toString((blockFilteringEndTime - blockFilteringStartTime) / 1000);
             filterBlockSizes = getBlockSizes(blocks);
             filterBlockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
