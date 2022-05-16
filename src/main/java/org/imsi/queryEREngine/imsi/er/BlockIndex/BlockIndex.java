@@ -76,6 +76,7 @@ implements  TranslatableTable {
 	public void buildBlocks() {
 		this.invertedIndex = indexEntities(0, entityProfiles);
 		createEntitiesToBlocks();
+
 	}
 	
 	public static List<AbstractBlock> parseIndex(Map<String, Set<Integer>> invertedIndex) {
@@ -230,7 +231,7 @@ implements  TranslatableTable {
 	public void storeBlockIndex(String path, String tableName) {
 		SerializationUtilities.storeSerializedObject(this.invertedIndex, path + tableName + "InvertedIndex" );
 		SerializationUtilities.storeSerializedObject(this.entitiesToBlocks, path + tableName + "EntitiesToBlocks" );
-	
+		SerializationUtilities.storeSerializedObject(this.entityProfiles, path + tableName);
 	}
 	
 	public void loadBlockIndex(String path, String tableName) {

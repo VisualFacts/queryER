@@ -145,6 +145,7 @@ public class CsvEnumerator<E> implements Enumerator<E> {
 		parserSettings.setEmptyValue("");
 		parserSettings.setDelimiterDetectionEnabled(true);
 		CsvParser parser = new CsvParser(parserSettings);
+//		parser.beginParsing(new File(source.path()));
 		parser.beginParsing(new File(source.path()), Charset.forName("US-ASCII"));
 		return parser;
 	}

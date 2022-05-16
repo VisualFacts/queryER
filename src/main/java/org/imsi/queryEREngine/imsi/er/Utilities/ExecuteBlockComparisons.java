@@ -92,7 +92,7 @@ public class ExecuteBlockComparisons<T> {
 				Object[] entity2 = getEntity(id2);				
 
 				double compStartTime = System.currentTimeMillis();
-				double similarity = ProfileComparison.getJaroSimilarity(entity1, entity2, keyIndex);
+				double similarity = ProfileComparison.getJaccardSimilarity(entity1, entity2, keyIndex);
 				double compEndTime = System.currentTimeMillis();
 				compTime += compEndTime - compStartTime;
 				comparisons++;

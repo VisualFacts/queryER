@@ -134,7 +134,7 @@ public class CsvSchema extends AbstractSchema {
 				// createVETI(source, table.getKey(), tableName);
 				// computeTableStatistics(table, tableName, files, source);
 				builder.put(sourceSansCsv.relative(baseSource).path(), table);
-				if(tableName.contains("ground_truth")) continue;
+				//if(tableName.contains("ground_truth")) continue;
 				BaseBlockIndex blockIndex = createBlockIndex(table, tableName);
 				builder.put(dumpDirectories.getBlockIndexDirPath() + tableName + "InvertedIndex", blockIndex);
 				

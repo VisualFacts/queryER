@@ -25,7 +25,6 @@ public class ComparisonIterator implements Iterator<Comparison> {
 	public ComparisonIterator (AbstractBlock block) {
 		this.block = block;
 		totalComparisons = block.getNoOfComparisons();
-
 		if (block instanceof BilateralBlock) {
 			BilateralBlock bilBlock = (BilateralBlock) block;
 			innerLoop = -1; // so that counting in function next() starts from 0

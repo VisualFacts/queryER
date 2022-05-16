@@ -27,27 +27,21 @@ public class DumpDirectories {
 	private static String liFilePath;
 	private static String qIdsPath;
 	private static String vetiPath;
+	private static File dataDir;
+	private static File logsDir;
+	private static File blockDir;
+	private static File blockIndexDir;
+	private static File groundTruthDir;
+	private static File tableStatsDir;
+	private static File blockIndexStats;
+	private static File linksDir;
+	private static File vetiDir;
+	private static File qIdsDir;
+	private static File similaritiesDir;
 
 	public DumpDirectories() {
 		super();
 	}
-
-//	public static DumpDirectories loadDirectories() {
-//		if(new File(dataDirPath + "/dumpMap.json").exists()) {
-//			ObjectMapper objectMapper = new ObjectMapper();  
-//			try {
-//				return objectMapper.readValue(new File(dataDirPath + "/dumpMap.json"),	DumpDirectories.class);
-//
-//			} catch (JsonParseException e) {
-//				e.printStackTrace();
-//			} catch (JsonMappingException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		return new DumpDirectories("");
-//	}
 	
 	public DumpDirectories(String dumpPath){
 		dataDirPath = dumpPath;
@@ -62,19 +56,21 @@ public class DumpDirectories {
 		qIdsPath = dumpPath + "/qIds/";
 		vetiPath = dumpPath + "/veti/";
 		liFilePath = dumpPath + "/LI";
+		dataDir = new File(dataDirPath);
+		logsDir = new File(logsDirPath);
+		blockDir = new File(blockDirPath);
+		blockIndexDir = new File(blockIndexDirPath);
+		groundTruthDir = new File(groundTruthDirPath);
+		tableStatsDir = new File(tableStatsDirPath);
+		blockIndexStats = new File(blockIndexStatsDirPath);
+		linksDir = new File(linksDirPath);
+		vetiDir = new File(vetiPath);
+		qIdsDir = new File(qIdsPath);
+		similaritiesDir = new File(similaritiesDirPath);
 	}
 
 	public  void generateDumpDirectories() throws IOException {
-		File dataDir = new File(dataDirPath);
-		File logsDir = new File(logsDirPath);
-		File blockDir = new File(blockDirPath);
-		File blockIndexDir = new File(blockIndexDirPath);
-		File groundTruthDir = new File(groundTruthDirPath);
-		File tableStatsDir = new File(tableStatsDirPath);
-		File blockIndexStats = new File(blockIndexStatsDirPath);
-		File linksDir = new File(linksDirPath);
-		File vetiDir = new File(vetiPath);
-		File similaritiesDir = new File(similaritiesDirPath);
+
 		if(!dataDir.exists()) {
 			FileUtils.forceMkdir(dataDir); //create directory
 		}
@@ -89,6 +85,9 @@ public class DumpDirectories {
 		}
 		if(!tableStatsDir.exists()) {
 			FileUtils.forceMkdir(tableStatsDir); //create directory
+		}
+		if(!qIdsDir.exists()) {
+			FileUtils.forceMkdir(qIdsDir); //create directory
 		}
 		if(!blockIndexStats.exists()) {
 			FileUtils.forceMkdir(blockIndexStats); //create directory
@@ -108,20 +107,6 @@ public class DumpDirectories {
 
 	}
 
-//	public void storeDumpMap() throws IOException {
-//		File file = new File("/usr/local/share/data/dumpMap.json");
-//		FileOutputStream fOut = null;
-//
-//		fOut = new FileOutputStream(file);
-//
-//		ObjectMapper mapper = new ObjectMapper();
-//
-//		JsonGenerator jGenerator = null;
-//		jGenerator = mapper.getFactory().createGenerator(fOut);
-//		mapper.writeValue(jGenerator, this);
-//		jGenerator.close();
-//	}
-	
 	public String getDataDirPath() {
 		return dataDirPath;
 	}
@@ -154,7 +139,7 @@ public class DumpDirectories {
 		return linksDirPath;
 	}
 	public String getqIdsPath() {
-		return qIdsPath;
+		return qIdsPath + "qIds" + String.valueOf(qIdsDir.list().length + 1);
 	}
 
 	public String getVetiPath() {
@@ -164,5 +149,5 @@ public class DumpDirectories {
 	public String getLiFilePath() {
 		return liFilePath;
 	}
-	
+
 }

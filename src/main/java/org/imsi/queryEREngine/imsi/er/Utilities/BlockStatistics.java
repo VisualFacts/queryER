@@ -199,14 +199,15 @@ public class BlockStatistics implements Constants {
         } else {
             for (AbstractBlock block : blocks) {
                 ComparisonIterator iterator = block.getComparisonIterator();
-                while (iterator.hasNext()) { 
+                while (iterator.hasNext()) {
+
                     Comparison comparison = iterator.next();
                     entitiesD1.add(comparison.getEntityId1());
                     entitiesD1.add(comparison.getEntityId2());
                 }
             }
             noOfD1Entities = entitiesD1.size();
-            //System.out.println("Entities in blocks\t:\t" + noOfD1Entities);
+            System.out.println("Entities in blocks\t:\t" + noOfD1Entities);
             csvWriter.append(String.valueOf(noOfD1Entities+noOfD2Entities) + ",");
 
         }

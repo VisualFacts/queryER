@@ -82,23 +82,27 @@ public class DeduplicationExecution<T> {
 	public static List<AbstractBlock> blocks;
 	public static Set<Integer> qIds = new HashSet<>();
     @SuppressWarnings({"rawtypes", "unchecked"})
+
     public static <T> EntityResolvedTuple deduplicateEnumerator(Enumerable<T> enumerable, String tableName,
     		Integer key, String source, List<CsvFieldType> fieldTypes, AtomicBoolean ab) {
     	CsvEnumerator<Object[]> originalEnumerator = new CsvEnumerator(Sources.of(new File(source)), ab, fieldTypes, key);
+        double scanStart = System.currentTimeMillis();
         HashMap<Integer, Object[]> queryData = createMap((AbstractEnumerable<Object[]>) enumerable, key);
+        double scanTime = System.currentTimeMillis() - scanStart;
+        System.out.println("Table Scan Time\t\t" + scanTime/1000);
         return deduplicate(queryData, key, fieldTypes.size(), tableName, originalEnumerator, source);
     	
     }
 
     public static EntityResolvedTuple deduplicate(HashMap<Integer, Object[]> queryData, Integer key, Integer noOfAttributes,
 			String tableName, Enumerator<Object[]> originalEnumerator, String source) {
-    	
-    	setProperties();
-    	boolean firstDedup = false;
+
     	double setPropertiesStartTime = System.currentTimeMillis();
-    	//setProperties();
+    	setProperties();
     	double setPropertiesTime = (System.currentTimeMillis() - setPropertiesStartTime);
-    	System.out.println("Deduplicating: " + tableName);
+        boolean firstDedup = false;
+
+        System.out.println("Deduplicating: " + tableName);
     	double deduplicateStartTime = System.currentTimeMillis() - setPropertiesTime;
         
         // Check for links and remove qIds that have links
@@ -110,7 +114,9 @@ public class DeduplicationExecution<T> {
         Set<Integer> totalIds = new HashSet<>();
 
         qIds = MapUtilities.deepCopySet(queryData.keySet());
-        
+        double idsTime = storeIds(qIds);
+        deduplicateStartTime -= idsTime;
+
         /* If there are links then we get all ids that are in the links HashMap (both on keys and the values).
          * Then we get all these data and put it onto the dataWithLinks hashMap.
          * Now we have two hashmaps 1) dataWithLinks, queryData = data without links.
@@ -223,25 +229,19 @@ public class DeduplicationExecution<T> {
         DeduplicationExecution.qIds = qIds;
         // To find ground truth statistics
         DeduplicationExecution.blocks = blocks;
-        double tableScanStartTime = System.currentTimeMillis();
-        
+
         RandomAccessReader randomAccessReader = null;
         try {
         	randomAccessReader = RandomAccessReader.open(new File(source));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        double tableScanEndTime = System.currentTimeMillis();
-        String tableScanTime = Double.toString((tableScanEndTime - tableScanStartTime) / 1000);
-       
 
         double comparisonStartTime = System.currentTimeMillis();
         
         // Merge queryData with dataWithLinks
 
         queryData = mergeMaps(queryData, dataWithLinks);
-        System.out.println("Executing comps");
         ExecuteBlockComparisons<?> ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
         EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
         double comparisonEndTime = System.currentTimeMillis();
@@ -258,13 +258,21 @@ public class DeduplicationExecution<T> {
         String comparisonTime = Double.toString((comparisonEndTime - comparisonStartTime) / 1000);
         String totalDeduplicationTime = Double.toString((deduplicateEndTime - deduplicateStartTime) / 1000);
         String linksTime = Double.toString(links1Time + ((links2EndTime - links2StartTime) / 1000));
+
+        System.out.println("Links Time\t\t" + linksTime);
+        System.out.println("Blocking Time\t\t" + String.valueOf((blockJoinEnd - blockingStartTime)/1000));
+        System.out.println("Block Purging Time\t\t" + purgingTime);
+        System.out.println("Block Filtering Time\t\t" + filterTime);
+        System.out.println("Edge Pruning Time\t\t" + epTime);
+        System.out.println("Comparison Execution Time\t\t" + comparisonTime);
+        System.out.println("Total Deduplication Time\t\t" + totalDeduplicationTime);
         // Log everything
-        if (DEDUPLICATION_EXEC_LOGGER.isDebugEnabled())
-        	DEDUPLICATION_EXEC_LOGGER.debug(tableName + "," + queryDataSize + "," + linksTime + "," + blockJoinTime + "," + blockingTime +  "," + blocksSize + "," + 
-        			blockSizes + "," + blockEntities + "," + purgingBlocksSize + "," + purgingTime + "," + purgingBlockSizes + "," + 
-        			purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
-        			epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + tableScanTime + "," + jaroTime + "," +
-        			comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime);
+//        if (DEDUPLICATION_EXEC_LOGGER.isDebugEnabled())
+//        	DEDUPLICATION_EXEC_LOGGER.debug(tableName + "," + queryDataSize + "," + linksTime + "," + blockJoinTime + "," + blockingTime +  "," + blocksSize + "," +
+//        			blockSizes + "," + blockEntities + "," + purgingBlocksSize + "," + purgingTime + "," + purgingBlockSizes + "," +
+//        			purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
+//        			epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + tableScanTime + "," + jaroTime + "," +
+//        			comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime);
         
         return entityResolvedTuple;
 		
@@ -318,10 +326,8 @@ public class DeduplicationExecution<T> {
 	}
 
     private static double storeIds(Set<Integer> qIds) {
-    	Set<Integer> newSet = new HashSet<>();
-    	newSet.addAll(qIds);
     	double startTime = System.currentTimeMillis();
-        SerializationUtilities.storeSerializedObject(newSet, dumpDirectories.getqIdsPath());
+        SerializationUtilities.storeSerializedObject(qIds, dumpDirectories.getqIdsPath());
         return System.currentTimeMillis() - startTime;
     }
 
