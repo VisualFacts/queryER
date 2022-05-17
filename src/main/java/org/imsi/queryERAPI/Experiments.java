@@ -102,10 +102,8 @@ public class Experiments {
 		
 		// Enter a query or read query from file
 		List<String> queries = new ArrayList<>();
-		
+		initializeDB(calciteConnection, schemaName);
 		if(queryFilePath == null) {
-			
-			initializeDB(calciteConnection, schemaName);
 			while(true) {
 				String query = readQuery();
 				Double runTime = 0.0;
@@ -166,12 +164,16 @@ public class Experiments {
 	}
 
 	public static void writeHeader(){
-		final Logger DEDUPLICATION_EXEC_LOGGER =  LoggerFactory.getLogger(DeduplicationExecution.class);
-        if(DEDUPLICATION_EXEC_LOGGER.isDebugEnabled()) 
-			DEDUPLICATION_EXEC_LOGGER.debug("table_name,query_entities,links_time,block_join_time,blocking_time,query_blocks,max_query_block_size,avg_query_block_size,total_query_comps,block_entities,"
+		try {
+			FileWriter logWriter = new FileWriter(dumpDirectories.getNewLogsDirPath());
+			logWriter.write("table_name,query_entities,table_scan_time,links_time,block_join_time,blocking_time,query_blocks,max_query_block_size,avg_query_block_size,total_query_comps,block_entities,"
 					+ "purge_blocks,purge_time,max_purge_block_size,avg_purge_block_size,total_purge_comps,purge_entities,filter_blocks,filter_time,max_filter_block_size,avg_filter_block_size,"
-					+ "total_filter_comps,filter_entities,ep_time,ep_comps,ep_entities,matches_found,executed_comparisons,table_scan_time,jaro_time,comparison_time,rev_uf_creation_time,total_entities,total_dedup_time\n");
-		
+					+ "total_filter_comps,filter_entities,ep_time,ep_comps,ep_entities,matches_found,executed_comparisons,jaro_time,comparison_time,rev_uf_creation_time,total_entities,total_dedup_time\n");
+			logWriter.close();
+		} catch (IOException e) {
+			System.out.println("Log file creation error occurred.");
+			e.printStackTrace();
+		}
 	}
 
 	private static void readQueries(List<String> queries, String queryFilePath) {

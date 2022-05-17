@@ -22,10 +22,7 @@ import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +39,8 @@ import java.util.stream.Collectors;
 public class DeduplicationExecution<T> {
 
     protected static final Logger DEDUPLICATION_EXEC_LOGGER = LoggerFactory.getLogger(DeduplicationExecution.class);
-    
+
+
     /**
      * Performs deduplication on a single table's entities.
      * The steps for performing the resolution are as follows:
@@ -78,6 +76,7 @@ public class DeduplicationExecution<T> {
 	private static boolean runEP = true;
 	private static boolean runLinks = true;
 	private static double filterParam = 0.0;
+    private static double scanTime = 0.0;
 	private static DumpDirectories dumpDirectories = new DumpDirectories();
 	public static List<AbstractBlock> blocks;
 	public static Set<Integer> qIds = new HashSet<>();
@@ -88,8 +87,7 @@ public class DeduplicationExecution<T> {
     	CsvEnumerator<Object[]> originalEnumerator = new CsvEnumerator(Sources.of(new File(source)), ab, fieldTypes, key);
         double scanStart = System.currentTimeMillis();
         HashMap<Integer, Object[]> queryData = createMap((AbstractEnumerable<Object[]>) enumerable, key);
-        double scanTime = System.currentTimeMillis() - scanStart;
-        System.out.println("Table Scan Time\t\t" + scanTime/1000);
+        scanTime = (System.currentTimeMillis() - scanStart) / 1000;
         return deduplicate(queryData, key, fieldTypes.size(), tableName, originalEnumerator, source);
     	
     }
@@ -259,20 +257,27 @@ public class DeduplicationExecution<T> {
         String totalDeduplicationTime = Double.toString((deduplicateEndTime - deduplicateStartTime) / 1000);
         String linksTime = Double.toString(links1Time + ((links2EndTime - links2StartTime) / 1000));
 
-        System.out.println("Links Time\t\t" + linksTime);
-        System.out.println("Blocking Time\t\t" + String.valueOf((blockJoinEnd - blockingStartTime)/1000));
-        System.out.println("Block Purging Time\t\t" + purgingTime);
-        System.out.println("Block Filtering Time\t\t" + filterTime);
-        System.out.println("Edge Pruning Time\t\t" + epTime);
-        System.out.println("Comparison Execution Time\t\t" + comparisonTime);
-        System.out.println("Total Deduplication Time\t\t" + totalDeduplicationTime);
+//        System.out.println("Links Time\t\t" + linksTime);
+//        System.out.println("Blocking Time\t\t" + String.valueOf((blockJoinEnd - blockingStartTime)/1000));
+//        System.out.println("Block Purging Time\t\t" + purgingTime);
+//        System.out.println("Block Filtering Time\t\t" + filterTime);
+//        System.out.println("Edge Pruning Time\t\t" + epTime);
+//        System.out.println("Comparison Execution Time\t\t" + comparisonTime);
+//        System.out.println("Total Deduplication Time\t\t" + totalDeduplicationTime);
         // Log everything
-//        if (DEDUPLICATION_EXEC_LOGGER.isDebugEnabled())
-//        	DEDUPLICATION_EXEC_LOGGER.debug(tableName + "," + queryDataSize + "," + linksTime + "," + blockJoinTime + "," + blockingTime +  "," + blocksSize + "," +
-//        			blockSizes + "," + blockEntities + "," + purgingBlocksSize + "," + purgingTime + "," + purgingBlockSizes + "," +
-//        			purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
-//        			epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + tableScanTime + "," + jaroTime + "," +
-//        			comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime);
+        try {
+            FileWriter logWriter = new FileWriter(dumpDirectories.getLogsDirPath(), true);
+            logWriter.write(tableName + "," + queryDataSize + "," + scanTime + "," + linksTime + "," + blockJoinTime + "," + blockingTime +  "," + blocksSize + "," +
+                    blockSizes + "," + blockEntities + "," + purgingBlocksSize + "," + purgingTime + "," + purgingBlockSizes + "," +
+                    purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
+                    epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + jaroTime + "," +
+                    comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime);
+            logWriter.close();
+        } catch (IOException e) {
+            System.out.println("Log file creation error occurred.");
+            e.printStackTrace();
+        }
+
         
         return entityResolvedTuple;
 		

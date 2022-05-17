@@ -112,7 +112,11 @@ public class DumpDirectories {
 	}
 
 	public String getLogsDirPath() {
-		return logsDirPath;
+		return logsDirPath + "logs" + String.valueOf(logsDir.list().length) + ".csv";
+	}
+
+	public String getNewLogsDirPath() {
+		return logsDirPath + "logs" + String.valueOf(logsDir.list().length + 1) + ".csv";
 	}
 
 	public String getBlockDirPath() {
@@ -138,6 +142,7 @@ public class DumpDirectories {
 	public String getLinksDirPath() {
 		return linksDirPath;
 	}
+
 	public String getqIdsPath() {
 		return qIdsPath + "qIds" + String.valueOf(qIdsDir.list().length + 1);
 	}
