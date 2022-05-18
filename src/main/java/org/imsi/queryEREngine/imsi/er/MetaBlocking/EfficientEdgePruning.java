@@ -11,7 +11,7 @@ public class EfficientEdgePruning extends EdgePruning {
 
     public EfficientEdgePruning() {
         super("Efficient Edge Pruning", WeightingScheme.CBS);
-        averageWeight = 2.86030368;
+        averageWeight = 2;
     }
 
     @Override
