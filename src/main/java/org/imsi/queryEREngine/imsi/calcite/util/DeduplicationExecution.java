@@ -271,7 +271,7 @@ public class DeduplicationExecution<T> {
                     blockSizes + "," + blockEntities + "," + purgingBlocksSize + "," + purgingTime + "," + purgingBlockSizes + "," +
                     purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
                     epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + jaroTime + "," +
-                    comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime);
+                    comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime + "\n");
             logWriter.close();
         } catch (IOException e) {
             System.out.println("Log file creation error occurred.");
