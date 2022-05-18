@@ -6,6 +6,8 @@ import org.apache.calcite.linq4j.Enumerator;
 import org.imsi.queryEREngine.apache.calcite.util.Sources;
 import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
 import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.er.MetaBlocking.EdgePruning;
+import org.imsi.queryEREngine.imsi.er.MetaBlocking.WeightingScheme;
 import org.imsi.queryEREngine.imsi.er.QueryEngine;
 import org.imsi.queryEREngine.imsi.er.BlockIndex.QueryBlockIndex;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
@@ -14,11 +16,7 @@ import org.imsi.queryEREngine.imsi.er.DataStructures.EntityResolvedTuple;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.BlockRefinement.ComparisonsBasedBlockPurging;
 import org.imsi.queryEREngine.imsi.er.MetaBlocking.BlockFiltering;
 import org.imsi.queryEREngine.imsi.er.MetaBlocking.EfficientEdgePruning;
-import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
-import org.imsi.queryEREngine.imsi.er.Utilities.ExecuteBlockComparisons;
-import org.imsi.queryEREngine.imsi.er.Utilities.MapUtilities;
-import org.imsi.queryEREngine.imsi.er.Utilities.RandomAccessReader;
-import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
+import org.imsi.queryEREngine.imsi.er.Utilities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,7 +197,7 @@ public class DeduplicationExecution<T> {
             filterBlockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
             // EDGE PRUNING
             double edgePruningStartTime = System.currentTimeMillis();
-            EfficientEdgePruning eEP = new EfficientEdgePruning();
+            EdgePruning eEP = new EdgePruning(MetaBlockingConfiguration.WeightingScheme.EJS);
             if(runEP) {
             	eEP.applyProcessing(blocks);
 	            double edgePruningEndTime = System.currentTimeMillis();
