@@ -10,8 +10,8 @@ import org.imsi.queryEREngine.imsi.er.Utilities.MetaBlockingConfiguration.Weight
 public class EfficientEdgePruning extends EdgePruning {
 
     public EfficientEdgePruning() {
-        super("Efficient Edge Pruning", WeightingScheme.EJS);
-        averageWeight = 2.0;
+        super("Efficient Edge Pruning", WeightingScheme.ECBS);
+        averageWeight = 2.8603;
     }
 
     @Override
