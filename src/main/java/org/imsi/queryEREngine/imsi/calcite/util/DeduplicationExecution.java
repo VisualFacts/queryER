@@ -182,7 +182,6 @@ public class DeduplicationExecution<T> {
         String ePEntities = "";
         boolean epFlag = false;
         if (blocks.size() > 10) {
-        	
         	// FILTERING
             double blockFilteringStartTime = System.currentTimeMillis();
             filterParam = 0.4;
@@ -195,6 +194,9 @@ public class DeduplicationExecution<T> {
             filterTime = Double.toString((blockFilteringEndTime - blockFilteringStartTime) / 1000);
             filterBlockSizes = getBlockSizes(blocks);
             filterBlockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
+
+
+            blocks.remove(blocks.size() - 1);
             // EDGE PRUNING
             double edgePruningStartTime = System.currentTimeMillis();
             //EdgePruning eEP = new EdgePruning(MetaBlockingConfiguration.WeightingScheme.EJS);
@@ -213,7 +215,7 @@ public class DeduplicationExecution<T> {
 	            epFlag = true;
 	            
             }
-            
+
         }
         //Get ids of final entities, and add back qIds that were cut from m-blocking
         Set<Integer> blockQids = new HashSet<>();
