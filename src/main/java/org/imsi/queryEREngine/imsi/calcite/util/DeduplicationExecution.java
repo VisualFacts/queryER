@@ -197,7 +197,8 @@ public class DeduplicationExecution<T> {
             filterBlockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
             // EDGE PRUNING
             double edgePruningStartTime = System.currentTimeMillis();
-            EdgePruning eEP = new EdgePruning(MetaBlockingConfiguration.WeightingScheme.EJS);
+            //EdgePruning eEP = new EdgePruning(MetaBlockingConfiguration.WeightingScheme.EJS);
+            EfficientEdgePruning eEP = new EfficientEdgePruning();
             if(runEP) {
             	eEP.applyProcessing(blocks);
 	            double edgePruningEndTime = System.currentTimeMillis();
