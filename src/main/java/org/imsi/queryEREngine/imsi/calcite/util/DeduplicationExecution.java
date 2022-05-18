@@ -185,7 +185,7 @@ public class DeduplicationExecution<T> {
         	
         	// FILTERING
             double blockFilteringStartTime = System.currentTimeMillis();
-            filterParam = 0.35;
+            filterParam = 0.55;
             if(tableName.contains("publications")) filterParam = 0.55;
 	        BlockFiltering bFiltering = new BlockFiltering(filterParam);
 	        if(runBF) bFiltering.applyProcessing(blocks);
