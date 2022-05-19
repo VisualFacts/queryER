@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "defaultSchema": "dsd",
+  "defaultSchema": "oag",
   "schemas": [
      {
-      "name": "dsd",
+      "name": "oag",
       "type": "custom",
       "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
       "operand": {
-        "directory": "/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/ER/queryER-data/dsd",
+        "directory": "/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/VF/queryER-data/testing",
         "flavor": "translatable"
       }
     }
