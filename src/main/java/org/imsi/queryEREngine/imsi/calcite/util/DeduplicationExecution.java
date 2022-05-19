@@ -181,7 +181,6 @@ public class DeduplicationExecution<T> {
         if (blocks.size() > 10) {
         	// FILTERING
             double blockFilteringStartTime = System.currentTimeMillis();
-            filterParam = 0.4;
             if(tableName.contains("publications")) filterParam = 0.55;
 	        BlockFiltering bFiltering = new BlockFiltering(filterParam);
 	        if(runBF) bFiltering.applyProcessing(blocks);
@@ -430,6 +429,7 @@ public class DeduplicationExecution<T> {
             runBF = Boolean.parseBoolean(properties.getProperty(BF));
             runEP = Boolean.parseBoolean(properties.getProperty(EP));
             runLinks = Boolean.parseBoolean(properties.getProperty(LINKS));
+            filterParam = Double.parseDouble(properties.getProperty(FILTER_PARAM));
 		}
 	}
 	
