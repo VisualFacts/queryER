@@ -78,6 +78,8 @@ public class ExecuteBlockComparisons<T> {
 				Comparison comparison = iterator.next();
 				int id1 = comparison.getEntityId1();
 				int id2 = comparison.getEntityId2();
+				if(id1 == id2) continue;
+
 				if (!qIds.contains(id1) && !qIds.contains(id2))
 					continue;
 
