@@ -71,14 +71,16 @@ public class ExecuteBlockComparisons<T> {
         matches = new HashSet<>();
 
 		for (AbstractBlock block : nBlocks) {
-			ComparisonIterator iterator = block.getComparisonIterator();
+			//ComparisonIterator iterator = block.getComparisonIterator();
+			QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
+
 			while (iterator.hasNext()) {
 				Comparison comparison = iterator.next();
 				int id1 = comparison.getEntityId1();
 				int id2 = comparison.getEntityId2();
 				if (!qIds.contains(id1) && !qIds.contains(id2))
 					continue;
-				
+
 				String uniqueComp = "";
 				if (comparison.getEntityId1() > comparison.getEntityId2())
 					uniqueComp = id1 + "u" + id2;

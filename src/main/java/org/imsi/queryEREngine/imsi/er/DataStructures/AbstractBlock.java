@@ -3,9 +3,11 @@ package org.imsi.queryEREngine.imsi.er.DataStructures;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.ComparisonRefinement.AbstractDuplicatePropagation;
 import org.imsi.queryEREngine.imsi.er.Utilities.ComparisonIterator;
+import org.imsi.queryEREngine.imsi.er.Utilities.QueryComparisonIterator;
 
 public abstract class AbstractBlock implements Serializable {
 
@@ -25,6 +27,10 @@ public abstract class AbstractBlock implements Serializable {
 
 	public ComparisonIterator getComparisonIterator() {
 		return new ComparisonIterator(this);
+	}
+
+	public QueryComparisonIterator getQueryComparisonIterator(Set<Integer> qIds) {
+		return new QueryComparisonIterator(this, qIds);
 	}
 
 	public double getUtilityMeasure() {

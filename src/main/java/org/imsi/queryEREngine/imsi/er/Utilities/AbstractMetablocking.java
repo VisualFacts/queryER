@@ -7,6 +7,7 @@ import org.imsi.queryEREngine.imsi.er.Utilities.MetaBlockingConfiguration.Weight
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 
 public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
@@ -69,6 +70,34 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
                 Comparison comparison = iterator.next();
                 int entityId2 = comparison.getEntityId2()+entityIndex.getDatasetLimit();
                 
+                redundantCPE[comparison.getEntityId1()]++;
+                redundantCPE[entityId2]++;
+                if (!entityIndex.isRepeated(block.getBlockIndex(), comparison)) {
+                    validComparisons++;
+                    comparisonsPerEntity[comparison.getEntityId1()]++;
+                    comparisonsPerEntity[entityId2]++;
+                }
+            }
+        }
+    }
+
+    protected void getStatistics(List<AbstractBlock> blocks, Set<Integer> qIds) {
+        if (entityIndex == null) {
+            entityIndex = new EntityIndex(blocks);
+        }
+
+        validComparisons = 0;
+        totalBlocks = blocks.size();
+        redundantCPE = new double[entityIndex.getNoOfEntities()];
+        comparisonsPerBlock = new double[(int)(totalBlocks + 1)];
+        comparisonsPerEntity = new double[entityIndex.getNoOfEntities()];
+        for (AbstractBlock block : blocks) {
+            comparisonsPerBlock[block.getBlockIndex()] = block.getNoOfComparisons();
+            QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
+            while (iterator.hasNext()) {
+                Comparison comparison = iterator.next();
+                int entityId2 = comparison.getEntityId2()+entityIndex.getDatasetLimit();
+
                 redundantCPE[comparison.getEntityId1()]++;
                 redundantCPE[entityId2]++;
                 if (!entityIndex.isRepeated(block.getBlockIndex(), comparison)) {
