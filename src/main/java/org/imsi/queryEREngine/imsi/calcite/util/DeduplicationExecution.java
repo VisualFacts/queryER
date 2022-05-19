@@ -195,8 +195,8 @@ public class DeduplicationExecution<T> {
             blocks.remove(blocks.size() - 1);
             // EDGE PRUNING
             double edgePruningStartTime = System.currentTimeMillis();
-            //EfficientEdgePruning eEP = new EfficientEdgePruning();
-            WeightedNodePruning eEP = new WeightedNodePruning(WeightingScheme.CBS);
+            EfficientEdgePruning eEP = new EfficientEdgePruning();
+            //WeightedNodePruning eEP = new WeightedNodePruning(WeightingScheme.CBS);
             if(runEP) {
             	eEP.applyProcessing(blocks);
 	            double edgePruningEndTime = System.currentTimeMillis();
