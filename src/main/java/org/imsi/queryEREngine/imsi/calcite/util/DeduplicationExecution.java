@@ -197,6 +197,7 @@ public class DeduplicationExecution<T> {
             double edgePruningStartTime = System.currentTimeMillis();
             //EfficientEdgePruning eEP = new EfficientEdgePruning(qIds);
             CardinalityEdgePruning eEP = new CardinalityEdgePruning(WeightingScheme.CBS, qIds);
+
             if(runEP) {
             	eEP.applyProcessing(blocks);
 	            double edgePruningEndTime = System.currentTimeMillis();

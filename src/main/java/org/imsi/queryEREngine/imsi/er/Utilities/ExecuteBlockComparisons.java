@@ -78,11 +78,8 @@ public class ExecuteBlockComparisons<T> {
 				Comparison comparison = iterator.next();
 				int id1 = comparison.getEntityId1();
 				int id2 = comparison.getEntityId2();
-				if(id1 == id2) continue;
-
-				if (!qIds.contains(id1) && !qIds.contains(id2))
-					continue;
-
+				//				if (!qIds.contains(id1) && !qIds.contains(id2))
+//					continue;
 				String uniqueComp = "";
 				if (comparison.getEntityId1() > comparison.getEntityId2())
 					uniqueComp = id1 + "u" + id2;
@@ -101,7 +98,7 @@ public class ExecuteBlockComparisons<T> {
 				compTime += compEndTime - compStartTime;
 				comparisons++;
 				if (similarity >= 0.92) {
-					matches.add(uniqueComp);
+					//matches.add(uniqueComp);
 					uFind.union(id1, id2); 	
 					//for id1
 					HashMap<Integer, Double> similarityValues = similarities.computeIfAbsent(id1, x -> new HashMap<>());

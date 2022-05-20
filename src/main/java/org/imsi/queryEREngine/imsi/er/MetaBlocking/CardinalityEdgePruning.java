@@ -23,10 +23,7 @@ import org.imsi.queryEREngine.imsi.er.Utilities.ComparisonIterator;
 import org.imsi.queryEREngine.imsi.er.Utilities.MetaBlockingConfiguration;
 import org.imsi.queryEREngine.imsi.er.Utilities.QueryComparisonIterator;
 
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 
 public class CardinalityEdgePruning extends AbstractMetablocking {
@@ -64,7 +61,7 @@ public class CardinalityEdgePruning extends AbstractMetablocking {
 
     @Override
     public void applyProcessing(List<AbstractBlock> blocks) {
-        getStatistics(blocks);
+        getStatistics(blocks, qIds);
         getKThreshold(blocks);
         filterComparisons(blocks);
         gatherComparisons(blocks);
@@ -73,12 +70,16 @@ public class CardinalityEdgePruning extends AbstractMetablocking {
     protected void filterComparisons(List<AbstractBlock> blocks) {
         minimumWeight = Double.MIN_VALUE;
         topKEdges = new PriorityQueue<Comparison>((int) (2 * kThreshold), new ComparisonWeightComparator());
+        Set<String> uComparisons = new HashSet<>();
         for (AbstractBlock block : blocks) {
             //ComparisonIterator iterator = block.getComparisonIterator();
             QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
+
             while (iterator.hasNext()) {
                 Comparison comparison = iterator.next();
-                double weight = getWeight(block.getBlockIndex(), comparison);
+
+                //double weight = getWeight(block.getBlockIndex(), comparison);
+                double[] weight = getWeightIndex(block.getBlockIndex(), comparison);
                 if (weight < 0) {
                     continue;
                 }
@@ -101,7 +102,7 @@ public class CardinalityEdgePruning extends AbstractMetablocking {
             blockAssingments += block.getTotalBlockAssignments();
         }
         kThreshold = blockAssingments / 2;
-        kThreshold = (long) (kThreshold * 0.65);
+        //kThreshold = (long) (kThreshold * 0.65);
         System.out.println(kThreshold);
     }
 }

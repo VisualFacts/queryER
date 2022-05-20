@@ -101,6 +101,7 @@ public class EntityIndex implements Serializable {
     }
 
     public int getNoOfCommonBlocks(int blockIndex, Comparison comparison) {
+
         int[] blocks1 = entityBlocks[comparison.getEntityId1()];
         int[] blocks2 = entityBlocks[comparison.getEntityId2()+datasetLimit];
 
@@ -124,6 +125,43 @@ public class EntityIndex implements Serializable {
                         firstCommonIndex = true;
                         if (blocks1[i] != blockIndex) {
                             return -1;
+                        }
+                    }
+                }
+            }
+        }
+
+        return commonBlocks;
+    }
+
+
+    public int[] getNoOfCommonBlocks2(int blockIndex, Comparison comparison) {
+
+        int[] blocks1 = entityBlocks[comparison.getEntityId1()];
+        int[] blocks2 = entityBlocks[comparison.getEntityId2()+datasetLimit];
+        double[] arr = new double[2];
+
+        boolean firstCommonIndex = false;
+        int commonBlocks = 0;
+        int noOfBlocks1 = blocks1.length;
+        int noOfBlocks2 = blocks2.length;
+        for (int i = 0; i < noOfBlocks1; i++) {
+            for (int j = 0; j < noOfBlocks2; j++) {
+                if (blocks2[j] < blocks1[i]) {
+                    continue;
+                }
+
+                if (blocks1[i] < blocks2[j]) {
+                    break;
+                }
+
+                if (blocks1[i] == blocks2[j]) {
+                    commonBlocks++;
+                    if (!firstCommonIndex) {
+                        firstCommonIndex = true;
+                        if (blocks1[i] != blockIndex) {
+                            return -1;
+                            return arr[]
                         }
                     }
                 }

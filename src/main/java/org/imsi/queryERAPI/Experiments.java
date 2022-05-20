@@ -386,7 +386,7 @@ public class Experiments {
 					if(offset_d == null || offset_s == null) continue; //  bug fix
 					IdDuplicates idd = new IdDuplicates(offset_d, offset_s);
 					groundDups.add(idd);
-					
+
 					String uniqueComp = "";
 					if (offset_d > offset_s)
 						uniqueComp = offset_d + "u" + offset_s;
@@ -397,6 +397,7 @@ public class Experiments {
 					groundMatches.add(uniqueComp);
 				}		
 			}
+			SerializationUtilities.storeSerializedObject(groundDups, dumpDirectories.getGroundTruthDirPath() + name);
 		}
 		
 

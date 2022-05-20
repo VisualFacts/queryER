@@ -22,10 +22,12 @@ import org.imsi.queryEREngine.imsi.er.DataStructures.EntityIndex;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.AbstractEfficiencyMethod;
 import org.imsi.queryEREngine.imsi.er.Utilities.ComparisonIterator;
 import org.imsi.queryEREngine.imsi.er.Utilities.Converter;
+import org.imsi.queryEREngine.imsi.er.Utilities.QueryComparisonIterator;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
 
@@ -96,6 +98,41 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         }
     }
 
+
+    protected void getStatistics(List<AbstractBlock> blocks, Set<Integer> qIds) {
+        if (entityIndex == null) {
+            entityIndex = new EntityIndex(blocks);
+        }
+
+        blockAssingments = 0;
+        totalBlocks = blocks.size();
+        comparisonsPerBlock = new double[(int) (totalBlocks + 1)];
+        for (AbstractBlock block : blocks) {
+            QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
+            if (!iterator.hasComparisons()) continue;
+            //blockAssingments += block.getTotalBlockAssignments();
+            comparisonsPerBlock[block.getBlockIndex()] = block.getNoOfComparisons();
+        }
+
+        if (weightingScheme.equals(WeightingScheme.EJS)) {
+            validComparisons = 0;
+            comparisonsPerEntity = new double[entityIndex.getNoOfEntities()];
+            for (AbstractBlock block : blocks) {
+                ComparisonIterator iterator = block.getComparisonIterator();
+                while (iterator.hasNext()) {
+                    Comparison comparison = iterator.next();
+                    int entityId2 = comparison.getEntityId2() + entityIndex.getDatasetLimit();
+
+                    if (!entityIndex.isRepeated(block.getBlockIndex(), comparison)) {
+                        validComparisons++;
+                        comparisonsPerEntity[comparison.getEntityId1()]++;
+                        comparisonsPerEntity[entityId2]++;
+                    }
+                }
+            }
+        }
+    }
+
     protected double getWeight(int blockIndex, Comparison comparison) {
         switch (weightingScheme) {
             case ARCS:
@@ -134,6 +171,11 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         }
 
         return -1;
+    }
+
+
+    protected double[] getWeightIndex(int blockIndex, Comparison comparison) {
+        return entityIndex.getNoOfCommonBlocks2(blockIndex, comparison);
     }
 
     protected double getWeight(Comparison comparison) {
