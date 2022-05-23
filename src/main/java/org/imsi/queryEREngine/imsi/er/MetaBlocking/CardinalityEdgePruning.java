@@ -70,9 +70,7 @@ public class CardinalityEdgePruning extends AbstractMetablocking {
         minimumWeight = Double.MIN_VALUE;
         topKEdges = new PriorityQueue<Comparison>((int) (2 * kThreshold), new ComparisonWeightComparator());
         Set<String> uComparisons = new HashSet<>();
-        DumpDirectories dumpDirectories = new DumpDirectories();
-        this.entityIndex.setEntityBlocks((int[][]) SerializationUtilities
-                .loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + "papers1mEntityBlocks"));
+
         for (AbstractBlock block : blocks) {
             //ComparisonIterator iterator = block.getComparisonIterator();
             QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);

@@ -20,9 +20,7 @@ import org.imsi.queryEREngine.imsi.er.DataStructures.Comparison;
 import org.imsi.queryEREngine.imsi.er.DataStructures.DecomposedBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.EntityIndex;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.AbstractEfficiencyMethod;
-import org.imsi.queryEREngine.imsi.er.Utilities.ComparisonIterator;
-import org.imsi.queryEREngine.imsi.er.Utilities.Converter;
-import org.imsi.queryEREngine.imsi.er.Utilities.QueryComparisonIterator;
+import org.imsi.queryEREngine.imsi.er.Utilities.*;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -107,6 +105,9 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         blockAssingments = 0;
         totalBlocks = blocks.size();
         comparisonsPerBlock = new double[(int) (totalBlocks + 1)];
+        DumpDirectories dumpDirectories = new DumpDirectories();
+        this.entityIndex.setEntityBlocks((int[][]) SerializationUtilities
+                .loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + "papers1mEntityBlocks"));
         for (AbstractBlock block : blocks) {
             QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
             if (!iterator.hasComparisons()) continue;
