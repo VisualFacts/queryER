@@ -78,6 +78,7 @@ public class QueryBlockIndex extends BlockIndex {
 			DumpDirectories dumpDirectories = new DumpDirectories();
 			final Map<String, Set<Integer>> bBlocks = (Map<String, Set<Integer>>) SerializationUtilities
 					.loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + name + "InvertedIndex");
+
 			bBlocks.keySet().retainAll(this.invertedIndex.keySet());
 			return parseIndex(bBlocks);
 		}

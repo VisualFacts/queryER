@@ -8,11 +8,13 @@ public class UnilateralBlock extends AbstractBlock implements Serializable {
 	private static final long serialVersionUID = 43532585408538695L;
 
 	protected final int[] entities;
+	protected int[] queryEntities = new int[0];
 
 	public UnilateralBlock(int[] entities) {
 		super();
 		this.entities = entities;
 	}
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -36,6 +38,10 @@ public class UnilateralBlock extends AbstractBlock implements Serializable {
 	@Override
 	public double getNoOfComparisons() {
 		double noOfEntities = entities.length;
+		double noOfQueryEntities = queryEntities.length;
+		if (queryEntities.length > 0) {
+			return noOfQueryEntities * noOfEntities;
+		}
 		return noOfEntities*(noOfEntities-1)/2;
 	}
 
@@ -49,6 +55,10 @@ public class UnilateralBlock extends AbstractBlock implements Serializable {
 		int hash = 5;
 		hash = 53 * hash + Arrays.hashCode(this.entities);
 		return hash;
+	}
+
+	public void setQueryEntities(int[] queryEntities){
+		this.queryEntities = queryEntities;
 	}
 
 	@Override
