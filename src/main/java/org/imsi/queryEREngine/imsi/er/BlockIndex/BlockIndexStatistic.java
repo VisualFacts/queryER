@@ -171,8 +171,6 @@ public class BlockIndexStatistic implements Serializable {
 			entityIndex = new EntityIndex(blocks);
 		}
 		DumpDirectories dumpDirectories = new DumpDirectories();
-		SerializationUtilities.storeSerializedObject(entityIndex.getEB(),
-				dumpDirectories.getBlockIndexDirPath() + tableName + "EntityBlocks");
 		entityIndex = null;
 	}
 	protected void getCBS() {
