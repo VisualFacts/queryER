@@ -238,7 +238,7 @@ implements  TranslatableTable {
 		SerializationUtilities.storeSerializedObject(this.entitiesToBlocks, path + tableName + "EntitiesToBlocks" );
 
 		EntityIndex entityIndex = new EntityIndex(parseIndex(this.invertedIndex));
-		SerializationUtilities.storeSerializedObject(entityIndex.getEB(), path + tableName + "EntityBlocks" );
+		SerializationUtilities.storeSerializedObject(entityIndex, path + tableName + "EntityIndex" );
 
 	}
 	

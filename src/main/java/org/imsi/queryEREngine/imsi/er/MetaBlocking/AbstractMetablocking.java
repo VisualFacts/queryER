@@ -106,8 +106,8 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         totalBlocks = blocks.size();
         comparisonsPerBlock = new double[(int) (totalBlocks + 1)];
         DumpDirectories dumpDirectories = new DumpDirectories();
-        this.entityIndex.setEntityBlocks((int[][]) SerializationUtilities
-                .loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + "papers1mEntityBlocks"));
+        this.entityIndex = (EntityIndex) SerializationUtilities
+                .loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + "papers1mEntityIndex");
         for (AbstractBlock block : blocks) {
             QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
             if (!iterator.hasComparisons()) continue;

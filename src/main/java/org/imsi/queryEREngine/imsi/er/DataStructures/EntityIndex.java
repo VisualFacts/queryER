@@ -101,10 +101,6 @@ public class EntityIndex implements Serializable {
         return entityBlocks[entityId];
     }
 
-    public int[][] getEB() {
-        return entityBlocks;
-    }
-
     public int getNoOfCommonBlocks(int blockIndex, Comparison comparison) {
 
         int[] blocks1 = entityBlocks[comparison.getEntityId1()];
@@ -412,9 +408,5 @@ public class EntityIndex implements Serializable {
                 }
             }
         }
-    }
-
-    public void setEntityBlocks(int[][] entityBlocks){
-        this.entityBlocks = entityBlocks;
     }
 }
