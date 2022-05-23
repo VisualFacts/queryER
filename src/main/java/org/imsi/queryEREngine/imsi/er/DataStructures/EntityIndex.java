@@ -2,6 +2,7 @@ package org.imsi.queryEREngine.imsi.er.DataStructures;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -100,6 +101,10 @@ public class EntityIndex implements Serializable {
         return entityBlocks[entityId];
     }
 
+    public int[][] getEB() {
+        return entityBlocks;
+    }
+
     public int getNoOfCommonBlocks(int blockIndex, Comparison comparison) {
 
         int[] blocks1 = entityBlocks[comparison.getEntityId1()];
@@ -135,12 +140,13 @@ public class EntityIndex implements Serializable {
     }
 
 
-    public int[] getNoOfCommonBlocks2(int blockIndex, Comparison comparison) {
+    public double[] getNoOfCommonBlocks2(int blockIndex, Comparison comparison) {
 
         int[] blocks1 = entityBlocks[comparison.getEntityId1()];
         int[] blocks2 = entityBlocks[comparison.getEntityId2()+datasetLimit];
-        double[] arr = new double[2];
 
+        double[] arr = new double[2];
+        double firstIndex = 0.0;
         boolean firstCommonIndex = false;
         int commonBlocks = 0;
         int noOfBlocks1 = blocks1.length;
@@ -159,16 +165,18 @@ public class EntityIndex implements Serializable {
                     commonBlocks++;
                     if (!firstCommonIndex) {
                         firstCommonIndex = true;
-                        if (blocks1[i] != blockIndex) {
-                            return -1;
-                            return arr[]
-                        }
+                        firstIndex = blocks1[i];
+                        break;
+//                        if (blocks1[i] != blockIndex) {
+//                            //return -1;
+//                            return new double[]{-1.0, firstIndex};
+//                        }
                     }
                 }
             }
         }
 
-        return commonBlocks;
+        return new double[]{commonBlocks, firstIndex};
     }
 
     public int getNoOfEntities() {
@@ -404,5 +412,9 @@ public class EntityIndex implements Serializable {
                 }
             }
         }
+    }
+
+    public void setEntityBlocks(int[][] entityBlocks){
+        this.entityBlocks = entityBlocks;
     }
 }

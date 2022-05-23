@@ -19,9 +19,8 @@ import org.imsi.queryEREngine.imsi.er.Comparators.ComparisonWeightComparator;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.BilateralBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.Comparison;
-import org.imsi.queryEREngine.imsi.er.Utilities.ComparisonIterator;
-import org.imsi.queryEREngine.imsi.er.Utilities.MetaBlockingConfiguration;
-import org.imsi.queryEREngine.imsi.er.Utilities.QueryComparisonIterator;
+import org.imsi.queryEREngine.imsi.er.DataStructures.EntityIndex;
+import org.imsi.queryEREngine.imsi.er.Utilities.*;
 
 import java.util.*;
 
@@ -71,15 +70,25 @@ public class CardinalityEdgePruning extends AbstractMetablocking {
         minimumWeight = Double.MIN_VALUE;
         topKEdges = new PriorityQueue<Comparison>((int) (2 * kThreshold), new ComparisonWeightComparator());
         Set<String> uComparisons = new HashSet<>();
+        DumpDirectories dumpDirectories = new DumpDirectories();
+        this.entityIndex.setEntityBlocks((int[][]) SerializationUtilities
+                .loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + "papers1mEntityBlocks"));
         for (AbstractBlock block : blocks) {
             //ComparisonIterator iterator = block.getComparisonIterator();
             QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
 
             while (iterator.hasNext()) {
                 Comparison comparison = iterator.next();
+                int id1 = comparison.getEntityId1();
+                int id2 = comparison.getEntityId2();
+//                double weight = getWeight(block.getBlockIndex(), comparison);
+                if(id1 == id2) continue;
+                double[] arr = getWeightIndex(block.getBlockIndex(), comparison);
+                double weight = arr[0];
+                if((int) arr[1] < block.getBlockIndex()){
+                    continue;
+                }
 
-                //double weight = getWeight(block.getBlockIndex(), comparison);
-                double[] weight = getWeightIndex(block.getBlockIndex(), comparison);
                 if (weight < 0) {
                     continue;
                 }

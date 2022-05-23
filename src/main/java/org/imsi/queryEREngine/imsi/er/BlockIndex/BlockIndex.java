@@ -37,10 +37,7 @@ import org.imsi.queryEREngine.apache.calcite.util.Pair;
 import org.imsi.queryEREngine.imsi.calcite.rel.logical.LogicalBlockIndexScan;
 import org.imsi.queryEREngine.imsi.calcite.util.DeduplicationExecution;
 import org.imsi.queryEREngine.imsi.er.BlockBuilding.ExtendedCanopyClustering;
-import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
-import org.imsi.queryEREngine.imsi.er.DataStructures.Attribute;
-import org.imsi.queryEREngine.imsi.er.DataStructures.EntityProfile;
-import org.imsi.queryEREngine.imsi.er.DataStructures.UnilateralBlock;
+import org.imsi.queryEREngine.imsi.er.DataStructures.*;
 import org.imsi.queryEREngine.imsi.er.Utilities.Converter;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
 import org.imsi.queryEREngine.imsi.er.Utilities.EquiFreqBinning;
@@ -62,7 +59,7 @@ implements  TranslatableTable {
 	protected Map<Integer, Set<String>> entitiesToBlocks;
 	protected static ExtendedCanopyClustering eCC;
 	private DumpDirectories dumpDirectories = new DumpDirectories();
-	
+
 	public BlockIndex() {
 		this.entityProfiles = new ArrayList<EntityProfile>();
 		this.invertedIndex = new HashMap<String, Set<Integer>>();
@@ -120,8 +117,16 @@ implements  TranslatableTable {
 				}
 			}
 		}
-		
-		this.setTfIdf(tfIdf);
+//		this.setTfIdf(tfIdf);
+//		sortTfIdf();
+//		int i = 0;
+//		for (String k : this.tfIdf.keySet()) {
+//			if( i < 100){
+//				System.out.println(k + ": " + this.tfIdf.get(k));
+//				System.out.println(invertedIndex.get(k).size());
+//			}
+//			i++;
+//		}
 		return invertedIndex;
 	}    
 
@@ -231,12 +236,16 @@ implements  TranslatableTable {
 	public void storeBlockIndex(String path, String tableName) {
 		SerializationUtilities.storeSerializedObject(this.invertedIndex, path + tableName + "InvertedIndex" );
 		SerializationUtilities.storeSerializedObject(this.entitiesToBlocks, path + tableName + "EntitiesToBlocks" );
-		SerializationUtilities.storeSerializedObject(this.entityProfiles, path + tableName);
+
+		EntityIndex entityIndex = new EntityIndex(parseIndex(this.invertedIndex));
+		SerializationUtilities.storeSerializedObject(entityIndex.getEB(), path + tableName + "EntityBlocks" );
+
 	}
 	
 	public void loadBlockIndex(String path, String tableName) {
 		this.invertedIndex = (Map<String, Set<Integer>>) SerializationUtilities.loadSerializedObject(path + tableName + "InvertedIndex" );
 		this.entitiesToBlocks = (Map<Integer, Set<String>>) SerializationUtilities.loadSerializedObject(path + tableName + "EntitiesToBlocks");
+
 	}
 	
 	
