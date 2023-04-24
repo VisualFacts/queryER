@@ -1,3 +1,8 @@
+# QueryER: A Framework for Fast Analysis-Aware Deduplication over Dirty Data
+Giorgos Alexiou, George Papastefanatos, Vasilis Stamatopoulos, Georgia Koutrika, and Nectarios Koziris. QueryER: A Framework for Fast Analysis-Aware Deduplication over Dirty Data.
+
+Code written in Java 8.
+
 ## Usage
 
 
