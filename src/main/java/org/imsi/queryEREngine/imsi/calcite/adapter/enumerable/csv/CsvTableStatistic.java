@@ -1,4 +1,4 @@
-package org.imsi.queryEREngine.imsi.calcite.adapter.csv;
+package org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -16,7 +16,7 @@ import org.imsi.queryEREngine.imsi.er.BlockIndex.QueryBlockIndex;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.EntityResolvedTuple;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.BlockRefinement.ComparisonsBasedBlockPurging;
-import org.imsi.queryEREngine.imsi.er.MetaBlocking.BlockFiltering;
+import org.imsi.queryEREngine.imsi.er.MetaBlocking.BlockQueryFiltering;
 import org.imsi.queryEREngine.imsi.er.MetaBlocking.EfficientEdgePruning;
 import org.imsi.queryEREngine.imsi.er.Utilities.ExecuteBlockComparisons;
 
@@ -54,7 +54,7 @@ public class CsvTableStatistic {
 		//sampleTable();
 		//deduplicate();
 		//getJoins();
-		getCardinalities();
+		//getCardinalities();
 
 	}
 	
@@ -112,7 +112,7 @@ public class CsvTableStatistic {
                 .joinBlockIndices(tableName, true);
 	    blockPurging.applyProcessing(blocks);
 	    if (blocks.size() > 10) {
-			 BlockFiltering bFiltering = new BlockFiltering(0.35);
+			 BlockQueryFiltering bFiltering = new BlockQueryFiltering(0.35);
 			 bFiltering.applyProcessing(blocks);
 			 EfficientEdgePruning eEP = new EfficientEdgePruning();
 	         eEP.applyProcessing(blocks);
@@ -121,7 +121,7 @@ public class CsvTableStatistic {
         AbstractEnumerable<Object[]> comparisonEnumerable = createEnumerable((CsvEnumerator<Object[]>) originalEnumerator, totalIds, tableKey);
 		 HashMap<Integer, Object[]> entityMap = createMap(comparisonEnumerable, tableKey);
         ExecuteBlockComparisons ebc = new ExecuteBlockComparisons(entityMap);
-		EntityResolvedTuple entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIds, tableKey, columnCount);
+		EntityResolvedTuple entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIds, tableKey, columnCount,tableName);
 		System.out.println(entityResolvedTuple.finalData.size());
 
 	}

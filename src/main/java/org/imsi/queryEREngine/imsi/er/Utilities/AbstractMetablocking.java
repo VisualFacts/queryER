@@ -4,10 +4,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.imsi.queryEREngine.imsi.er.DataStructures.*;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.AbstractEfficiencyMethod;
 import org.imsi.queryEREngine.imsi.er.Utilities.MetaBlockingConfiguration.WeightingScheme;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 
 public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
@@ -86,27 +84,40 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
             entityIndex = new EntityIndex(blocks);
         }
 
-        validComparisons = 0;
+//        validComparisons = 0;
         totalBlocks = blocks.size();
-        redundantCPE = new double[entityIndex.getNoOfEntities()];
-        comparisonsPerBlock = new double[(int)(totalBlocks + 1)];
-        comparisonsPerEntity = new double[entityIndex.getNoOfEntities()];
-        for (AbstractBlock block : blocks) {
-            comparisonsPerBlock[block.getBlockIndex()] = block.getNoOfComparisons();
-            QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
-            while (iterator.hasNext()) {
-                Comparison comparison = iterator.next();
-                int entityId2 = comparison.getEntityId2()+entityIndex.getDatasetLimit();
-
-                redundantCPE[comparison.getEntityId1()]++;
-                redundantCPE[entityId2]++;
-                if (!entityIndex.isRepeated(block.getBlockIndex(), comparison)) {
-                    validComparisons++;
-                    comparisonsPerEntity[comparison.getEntityId1()]++;
-                    comparisonsPerEntity[entityId2]++;
-                }
-            }
-        }
+//        redundantCPE = new double[entityIndex.getNoOfEntities()];
+//        comparisonsPerBlock = new double[(int)(totalBlocks + 1)];
+//        comparisonsPerEntity = new double[entityIndex.getNoOfEntities()];
+//        for (AbstractBlock block : blocks) {
+//            comparisonsPerBlock[block.getBlockIndex()] = block.getNoOfComparisons();
+//            QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
+//            HashSet<Comparison> uComp = new HashSet<>();
+//            while (iterator.hasNext()) {
+//                Comparison comparison = iterator.next();
+//
+//                if (comparison.getEntityId1() == comparison.getEntityId2()) continue;
+//                if (comparison.getEntityId1() > comparison.getEntityId2())
+//                    comparison = new Comparison(false, comparison.getEntityId2(), comparison.getEntityId1());
+//
+//                if (uComp.contains(comparison)) continue;
+//
+//                uComp.add(comparison);
+//
+//                int entityId2 = comparison.getEntityId2()+entityIndex.getDatasetLimit();
+//
+//                redundantCPE[comparison.getEntityId1()]++;
+//                redundantCPE[entityId2]++;
+//                validComparisons++;
+//                comparisonsPerEntity[comparison.getEntityId1()]++;
+//                comparisonsPerEntity[entityId2]++;
+////                if (!entityIndex.isRepeated(block.getBlockIndex(), comparison)) {
+////                    validComparisons++;
+////                    comparisonsPerEntity[comparison.getEntityId1()]++;
+////                    comparisonsPerEntity[entityId2]++;
+////                }
+//            }
+//        }
     }
     
     protected void getValidComparisons(List<AbstractBlock> blocks) {
@@ -146,12 +157,17 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
                 }
                 return totalWeight;
             case CBS:
+//                double cb = entityIndex.getNoOfCommonBlocks(blockIndex, comparison);
+//               if(Double.isNaN(cb)) System.err.println(cb);
                 return entityIndex.getNoOfCommonBlocks(blockIndex, comparison);
             case ECBS:
                 double commonBlocks = entityIndex.getNoOfCommonBlocks(blockIndex, comparison);
                 if (commonBlocks < 0) {
                     return commonBlocks;
                 }
+                double f = Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId1(), 0)) * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId2(), comparison.isCleanCleanER()?1:0));
+//                               if(Double.isNaN(f) || Double.isNaN(commonBlocks) || Double.isNaN(f*commonBlocks)) System.err.println(f+"   "+commonBlocks);
+//                System.err.println(commonBlocks * );
                 return commonBlocks * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId1(), 0)) * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId2(), comparison.isCleanCleanER()?1:0));
             case JS:
                 double commonBlocksJS = entityIndex.getNoOfCommonBlocks(blockIndex, comparison);

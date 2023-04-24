@@ -5,20 +5,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.imsi.queryEREngine.apache.calcite.jdbc.JavaTypeFactoryImpl;
 import org.imsi.queryEREngine.apache.calcite.rel.type.RelDataTypeField;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
 import org.imsi.queryEREngine.apache.calcite.util.Sources;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvTranslatableTable;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvEnumerator;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvTranslatableTable;
 import org.imsi.queryEREngine.imsi.er.BlockIndex.BaseBlockIndex;
 import org.imsi.queryEREngine.imsi.er.BlockIndex.BlockIndexStatistic;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
-import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;;
 public enum NewBuiltInMethod {
 	DEDUPLICATE_ENUM(DeduplicationExecution.class, "deduplicateEnumerator", Enumerable.class,
-			String.class, Integer.class, String.class, List.class, AtomicBoolean.class),
+			String.class, Integer.class, String.class, List.class, AtomicBoolean.class, List.class),
 	MERGE_ENTITIES(DeduplicationExecution.class, "mergeEntities", EntityResolvedTuple.class, List.class, List.class), 
 	HASH_JOIN_DIRTY_RIGHT(DeduplicationJoinExecution.class, "dirtyRightJoin", EntityResolvedTuple.class, Enumerable.class,
 			Function1.class,

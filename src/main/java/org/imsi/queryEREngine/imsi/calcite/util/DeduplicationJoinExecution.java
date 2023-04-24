@@ -6,26 +6,17 @@ import org.apache.calcite.linq4j.function.Function1;
 import org.apache.calcite.linq4j.function.Function2;
 import org.apache.calcite.linq4j.function.Predicate2;
 import org.imsi.queryEREngine.apache.calcite.util.Sources;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
-import org.imsi.queryEREngine.imsi.er.BlockIndex.QueryBlockIndex;
-import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvEnumerator;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 import org.imsi.queryEREngine.imsi.er.DataStructures.EntityResolvedTuple;
-import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.BlockRefinement.ComparisonsBasedBlockPurging;
-import org.imsi.queryEREngine.imsi.er.MetaBlocking.BlockFiltering;
-import org.imsi.queryEREngine.imsi.er.MetaBlocking.EfficientEdgePruning;
-import org.imsi.queryEREngine.imsi.er.Utilities.ExecuteBlockComparisons;
 import org.imsi.queryEREngine.imsi.er.Utilities.UnionFind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * A dirty right/left join takes as input one entityResolvedTuples and an enumerable.
@@ -97,7 +88,7 @@ public class DeduplicationJoinExecution {
 
 		//Deduplicate the dirty table
 		EntityResolvedTuple entityResolvedTuple = DeduplicationExecution.deduplicate(filteredData, keyRight, rightTableSize,
-				rightTableName, originalEnumerator, sourceRight);
+				rightTableName, originalEnumerator, sourceRight, new ArrayList<>());
 
 
 		EntityResolvedTuple joinedEntityResolvedTuple  =
@@ -160,7 +151,7 @@ public class DeduplicationJoinExecution {
 
 		// Deduplicate the dirty table
 		EntityResolvedTuple entityResolvedTuple = DeduplicationExecution.deduplicate(filteredData, keyLeft, leftTableSize,
-				leftTableName, originalEnumerator, sourceLeft);
+				leftTableName, originalEnumerator, sourceLeft, new ArrayList<>());
 		// Reverse the right, left structure
 		EntityResolvedTuple  joinedEntityResolvedTuple =
 				deduplicateJoin(entityResolvedTuple, right, leftKeySelector, rightKeySelector,

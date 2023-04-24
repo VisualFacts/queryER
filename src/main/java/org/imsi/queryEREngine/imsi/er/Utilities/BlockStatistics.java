@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.univocity.parsers.csv.CsvWriter;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.BilateralBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.Comparison;
@@ -40,7 +41,7 @@ public class BlockStatistics implements Constants {
     }
 
     public double[] applyProcessing() throws IOException {
-        //System.out.println("No of blocks\t:\t" + blocks.size());
+        System.out.println("No of blocks\t:\t" + blocks.size());
     	csvWriter.append(Integer.toString(blocks.size()) + ",");
         double[] values = new double[3];
         if (blocks.isEmpty()) {

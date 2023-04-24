@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.imsi.queryEREngine.imsi.calcite.adapter.csv;
+package org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ import org.imsi.queryEREngine.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.imsi.queryEREngine.apache.calcite.rel.type.RelDataType;
 import org.imsi.queryEREngine.apache.calcite.rel.type.RelDataTypeFactory;
 import org.imsi.queryEREngine.apache.calcite.rel.type.RelDataTypeField;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.rules.CsvProjectTableScanRule;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.rules.CsvProjectTableScanRule;
 import org.imsi.queryEREngine.imsi.er.KDebug;
 
 import com.google.common.collect.ImmutableList;

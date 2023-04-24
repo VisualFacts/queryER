@@ -51,7 +51,6 @@ public class CalciteConnectionPool {
 	    final SchemaPlus rootSchema = connection.unwrap(CalciteConnection.class).getRootSchema();
 	    final JdbcSchema schema = JdbcSchema.create(rootSchema, "test", dataSource, null, null);
 	    rootSchema.add("test", schema);
-
 	    this.connection = connection; // calcite connection
 	    return connection;
 	  }

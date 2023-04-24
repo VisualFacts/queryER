@@ -1,8 +1,6 @@
 package org.imsi.queryEREngine.imsi.er;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +10,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,18 +19,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.imsi.queryEREngine.apache.calcite.jdbc.CalciteConnection;
-import org.imsi.queryEREngine.apache.calcite.util.Source;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchema;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvTranslatableTable;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvSchema;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvTranslatableTable;
 import org.imsi.queryEREngine.imsi.calcite.util.DeduplicationExecution;
 import org.imsi.queryEREngine.imsi.er.ConnectionPool.CalciteConnectionPool;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
-import org.imsi.queryEREngine.imsi.er.DataStructures.DecomposedBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.IdDuplicates;
-import org.imsi.queryEREngine.imsi.er.DataStructures.UnilateralBlock;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.ComparisonRefinement.AbstractDuplicatePropagation;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.ComparisonRefinement.UnilateralDuplicatePropagation;
 import org.imsi.queryEREngine.imsi.er.Utilities.BlockStatistics;
@@ -45,10 +37,6 @@ import org.imsi.queryEREngine.apache.calcite.schema.Table;
 
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-
-import au.com.bytecode.opencsv.CSVWriter;
-import net.minidev.json.JSONArray;
-import net.minidev.json.parser.JSONParser;
 
 public class QueryEngine {
 

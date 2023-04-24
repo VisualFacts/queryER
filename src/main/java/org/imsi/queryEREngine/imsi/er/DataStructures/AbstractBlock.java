@@ -16,6 +16,17 @@ public abstract class AbstractBlock implements Serializable {
 	protected int blockIndex;
 	protected double utilityMeasure;
 
+	protected boolean isProtected;
+	public boolean isProtected() {
+		return isProtected;
+	}
+
+	public void setProtected(boolean aProtected) {
+		isProtected = aProtected;
+	}
+
+
+
 	public AbstractBlock() {
 		blockIndex = -1;
 		utilityMeasure = -1;

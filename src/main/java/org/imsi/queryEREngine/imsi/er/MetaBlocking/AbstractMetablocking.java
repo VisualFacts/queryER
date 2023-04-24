@@ -15,17 +15,14 @@
 package org.imsi.queryEREngine.imsi.er.MetaBlocking;
 
 
-import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
-import org.imsi.queryEREngine.imsi.er.DataStructures.Comparison;
-import org.imsi.queryEREngine.imsi.er.DataStructures.DecomposedBlock;
-import org.imsi.queryEREngine.imsi.er.DataStructures.EntityIndex;
+import org.imsi.queryEREngine.imsi.er.DataStructures.*;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.AbstractEfficiencyMethod;
-import org.imsi.queryEREngine.imsi.er.Utilities.*;
+import org.imsi.queryEREngine.imsi.er.Utilities.ComparisonIterator;
+import org.imsi.queryEREngine.imsi.er.Utilities.Converter;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
 
@@ -64,6 +61,13 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         return new DecomposedBlock(cleanCleanER, entityIds1, entityIds2);
     }
 
+    protected void initializeEntityIndex(List<AbstractBlock> blocks) {
+        if (entityIndex == null) {
+            entityIndex = new EntityIndex(blocks);
+        }
+        totalBlocks = blocks.size();
+    }
+
     protected void getStatistics(List<AbstractBlock> blocks) {
         if (entityIndex == null) {
             entityIndex = new EntityIndex(blocks);
@@ -96,42 +100,28 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         }
     }
 
-
-    protected void getStatistics(List<AbstractBlock> blocks, Set<Integer> qIds) {
-        if (entityIndex == null) {
-            entityIndex = new EntityIndex(blocks);
+    protected int[] getWeightWithFCB(int blockIndex, Comparison comparison) {
+        return entityIndex.getNoOfCommonBlocksAndFCB(blockIndex, comparison);
+    }
+    protected double getWeightWithBlocks(int blockIndex, Comparison comparison, List<AbstractBlock> blocks) {
+        double commonBlocks = entityIndex.getNoOfCommonBlocks(blockIndex, comparison,blocks);
+        if (commonBlocks < 0) {
+            return commonBlocks;
         }
+        return commonBlocks* Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId1(), 0)) * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId2(), comparison.isCleanCleanER() ? 1 : 0));
+    }
+    protected boolean isRepeated(int blockIndex, Comparison comparison) {
+       return entityIndex.isRepeated(blockIndex,comparison);
+    }
 
-        blockAssingments = 0;
-        totalBlocks = blocks.size();
-        comparisonsPerBlock = new double[(int) (totalBlocks + 1)];
-        DumpDirectories dumpDirectories = new DumpDirectories();
-        this.entityIndex = (EntityIndex) SerializationUtilities
-                .loadSerializedObject(dumpDirectories.getBlockIndexDirPath() + "papers1mEntityIndex");
-        for (AbstractBlock block : blocks) {
-            QueryComparisonIterator iterator = block.getQueryComparisonIterator(qIds);
-            if (!iterator.hasComparisons()) continue;
-            //blockAssingments += block.getTotalBlockAssignments();
-            comparisonsPerBlock[block.getBlockIndex()] = block.getNoOfComparisons();
+    protected  double getUniWeight(int blockIndex, Comparison comparison, UnilateralBlock block) {
+        double commonBlocks = entityIndex.getNoOfCommonBlocks(blockIndex, comparison);
+        if (commonBlocks < 0) {
+            return commonBlocks;
         }
-
-        if (weightingScheme.equals(WeightingScheme.EJS)) {
-            validComparisons = 0;
-            comparisonsPerEntity = new double[entityIndex.getNoOfEntities()];
-            for (AbstractBlock block : blocks) {
-                ComparisonIterator iterator = block.getComparisonIterator();
-                while (iterator.hasNext()) {
-                    Comparison comparison = iterator.next();
-                    int entityId2 = comparison.getEntityId2() + entityIndex.getDatasetLimit();
-
-                    if (!entityIndex.isRepeated(block.getBlockIndex(), comparison)) {
-                        validComparisons++;
-                        comparisonsPerEntity[comparison.getEntityId1()]++;
-                        comparisonsPerEntity[entityId2]++;
-                    }
-                }
-            }
-        }
+//        commonBlocks = commonBlocks*blockIndex;
+        int f = block.getEntities().length /block.getQueryEntities().length;
+        return (commonBlocks * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId1(), 0)) * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId2(), comparison.isCleanCleanER() ? 1 : 0)))*f;///Math.log10(block.getQueryEntities().length);
     }
 
     protected double getWeight(int blockIndex, Comparison comparison) {
@@ -154,6 +144,7 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
                 if (commonBlocks < 0) {
                     return commonBlocks;
                 }
+//                if(commonBlocks==0 || Double.isNaN(commonBlocks)) System.err.println("Cb "+commonBlocks);
                 return commonBlocks * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId1(), 0)) * Math.log10(totalBlocks / entityIndex.getNoOfEntityBlocks(comparison.getEntityId2(), comparison.isCleanCleanER() ? 1 : 0));
             case JS:
                 double commonBlocksJS = entityIndex.getNoOfCommonBlocks(blockIndex, comparison);
@@ -172,11 +163,6 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
         }
 
         return -1;
-    }
-
-
-    protected double[] getWeightIndex(int blockIndex, Comparison comparison) {
-        return entityIndex.getNoOfCommonBlocks2(blockIndex, comparison);
     }
 
     protected double getWeight(Comparison comparison) {
@@ -217,6 +203,9 @@ public abstract class AbstractMetablocking extends AbstractEfficiencyMethod {
 
     public void resetEntityIndex() {
         entityIndex = null;
+    }
+    public EntityIndex getEntityIndex(){
+        return this.entityIndex;
     }
 
     public void setWeightingScheme(WeightingScheme wScheme) {

@@ -34,7 +34,7 @@ import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.apache.calcite.rex.RexUtil;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
 import org.imsi.queryEREngine.apache.calcite.util.Util;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 import org.imsi.queryEREngine.imsi.calcite.util.NewBuiltInMethod;
 import com.google.common.collect.ImmutableList;
 

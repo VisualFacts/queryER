@@ -1,12 +1,11 @@
 package org.imsi.queryEREngine.imsi.er.BlockIndex;
 
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvEnumerator;
 import org.imsi.queryEREngine.imsi.er.DataStructures.EntityProfile;
 
 public class BaseBlockIndex extends BlockIndex{
 
-	public void createBlockIndex(CsvEnumerator<Object[]> enumerator, Integer key)
-	{
+	public int createBlockIndex(CsvEnumerator<Object[]> enumerator, Integer key) {
 		while(enumerator.moveNext()) {
 			Object[] currentLine = enumerator.current();
 			Integer fields = currentLine.length;
@@ -24,6 +23,7 @@ public class BaseBlockIndex extends BlockIndex{
 			this.entityProfiles.add(eP);
 		}
 		enumerator.close();
+		return this.entityProfiles.size();
 	}
-	
+
 }

@@ -44,7 +44,7 @@ import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.apache.calcite.util.BuiltInMethod;
 import org.imsi.queryEREngine.apache.calcite.util.ImmutableBitSet;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 
 import com.google.common.collect.ImmutableList;
 

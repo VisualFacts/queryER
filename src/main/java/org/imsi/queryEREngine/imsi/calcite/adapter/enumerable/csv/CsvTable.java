@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.imsi.queryEREngine.imsi.calcite.adapter.csv;
+package org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv;
 
 import java.util.ArrayList;
 
@@ -47,6 +47,7 @@ public abstract class CsvTable extends AbstractTable {
 	protected List<CsvFieldType> fieldTypes;
 	protected RelDataType fullTypes;
 	protected int tableKey;
+	protected int tableSize;
 	protected String tableName;
 	protected Double rows;
 	protected Boolean statsComputed;
@@ -180,6 +181,14 @@ public abstract class CsvTable extends AbstractTable {
 
 	public void setCsvTableStatistic(CsvTableStatistic csvTableStatistic) {
 		this.csvTableStatistic = csvTableStatistic;
+	}
+
+	public int getTableSize() {
+		return tableSize;
+	}
+
+	public void setTableSize(int tableSize) {
+		this.tableSize = tableSize;
 	}
 }
 

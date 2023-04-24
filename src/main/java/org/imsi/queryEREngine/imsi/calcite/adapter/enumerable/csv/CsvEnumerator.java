@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.imsi.queryEREngine.imsi.calcite.adapter.csv;
+package org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv;
 
 import org.apache.calcite.linq4j.Enumerator;
 import org.imsi.queryEREngine.apache.calcite.adapter.java.JavaTypeFactory;
@@ -22,10 +22,7 @@ import org.imsi.queryEREngine.apache.calcite.rel.type.RelDataType;
 import org.imsi.queryEREngine.apache.calcite.sql.type.SqlTypeName;
 import org.imsi.queryEREngine.apache.calcite.util.Pair;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
-import org.imsi.queryEREngine.imsi.er.KDebug;
-import org.imsi.queryEREngine.imsi.er.Utilities.RandomAccessReader;
 
-import com.univocity.parsers.common.processor.RowListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
@@ -33,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,33 +41,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CsvEnumerator<E> implements Enumerator<E> {
 
-	public static String getCallerClassName() {
-		StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-		for (int i = 1; i < stElements.length; i++) {
-			StackTraceElement ste = stElements[i];
-			if (!ste.getClassName().equals(KDebug.class.getName()) && ste.getClassName().indexOf("java.lang.Thread") != 0)
-				return ste.getClassName(); 
-		} 
-		return null;
-	}
-
 	private  CsvParser parser;
 	private  AtomicBoolean cancelFlag;
 	private int key = 0;
-	
+
 	private E current;
 	private List<CsvFieldType> fieldTypes;
 	public List<String> fieldNames;
-
+	private HashMap<Integer, Long> offsetIndex;
 	private Source source;
 
 	public CsvEnumerator(Source source, AtomicBoolean cancelFlag,
-			List<CsvFieldType> fieldTypes, int key) {
+						 List<CsvFieldType> fieldTypes, int key) {
 		this(source, cancelFlag, fieldTypes, identityList(fieldTypes.size()), key);
 	}
 
 	public CsvEnumerator(Source source, AtomicBoolean cancelFlag,
-			List<CsvFieldType> fieldTypes, Integer[] fields, int key) {
+						 List<CsvFieldType> fieldTypes, int key, HashMap<Integer, Long> offsetIndex) {
+		this(source, cancelFlag, fieldTypes, identityList(fieldTypes.size()), key);
+		this.offsetIndex = offsetIndex;
+	}
+
+	public CsvEnumerator(Source source, AtomicBoolean cancelFlag,
+						 List<CsvFieldType> fieldTypes, Integer[] fields, int key) {
 		this.cancelFlag = cancelFlag;
 		this.source = source;
 		this.cancelFlag = cancelFlag;
@@ -87,7 +81,7 @@ public class CsvEnumerator<E> implements Enumerator<E> {
 	/** Deduces the names and types of a table's columns by reading the first line
 	 * of a CSV file. */
 	static RelDataType deduceRowType(JavaTypeFactory typeFactory, Source source,
-			List<CsvFieldType> fieldTypes) {
+									 List<CsvFieldType> fieldTypes) {
 		final List<RelDataType> types = new ArrayList<>();
 		final List<String> names = new ArrayList<>();
 		try {
@@ -161,19 +155,14 @@ public class CsvEnumerator<E> implements Enumerator<E> {
 		for (;;) {
 			long rowOffset = parser.getContext().currentChar() - 1;
 			final String[] strings = parser.parseNext();
-//			try {
-//				System.out.print(rowOffset + " = ");
-//	        	for(String s : strings) System.out.print(s + ", ");
-//	        	System.out.println();
-//			}
-//			catch(Exception e) {}
-			
+
 			if (strings == null) {
 				current = null;
 				return false;
 			}
-			if(!source.path().contains("ground_truth"))
-				strings[0] = Long.toString(rowOffset);
+			if(!source.path().contains("ground_truth") && offsetIndex != null)
+				offsetIndex.put(Integer.parseInt(strings[key]), rowOffset);
+			//strings[0] = Long.toString(rowOffset);
 			current = (E) strings;
 			return true;
 

@@ -73,14 +73,14 @@ public class ComparisonIterator implements Iterator<Comparison> {
 			return new Comparison(true, bilBlock.getIndex1Entities()[outerLoop], bilBlock.getIndex2Entities()[innerLoop]);
 		} else if (block instanceof UnilateralBlock) {
 			UnilateralBlock uniBlock = (UnilateralBlock) block;
-			innerLoop++;
+//			innerLoop++;
 			if (innerLimit < innerLoop) {
 				outerLoop++;
 				if (outerLimit < outerLoop) {
 					System.err.println("All comparisons were already executed!");
 					return null;
 				}
-				innerLoop = outerLoop+1;
+				innerLoop = outerLoop + 1;
 			}
 
 			return new Comparison(false, uniBlock.getEntities()[outerLoop], uniBlock.getEntities()[innerLoop]);

@@ -13,6 +13,7 @@ import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.apache.calcite.tools.RelBuilderFactory;
 import org.imsi.queryEREngine.imsi.calcite.rel.core.Deduplicate;
 import org.imsi.queryEREngine.imsi.calcite.rel.logical.LogicalDeduplicateJoin;
+import org.imsi.queryEREngine.imsi.er.Utilities.DeduplicationProperties;
 
 /**
  * 
@@ -20,7 +21,10 @@ import org.imsi.queryEREngine.imsi.calcite.rel.logical.LogicalDeduplicateJoin;
  * An important rule that checks the join type and removes the deduplication from the corresponding
  * tablescan.
  */
+
 public class DirtyJoinDeduplicateRemoveRule extends RelOptRule{
+
+	private static final DeduplicationProperties deduplicationProperties = new DeduplicationProperties();
 
 
 	public static final DirtyJoinDeduplicateRemoveRule INSTANCE =
@@ -67,26 +71,27 @@ public class DirtyJoinDeduplicateRemoveRule extends RelOptRule{
 		
 //// TEST 		
 //
-//		newJoin = LogicalDeduplicateJoin.create((RelNode)deduplicateLeft, deduplicateRight.getInput(0), join.getCondition(), join
-//				.getVariablesSet(), JoinRelType.DIRTY_RIGHT, deduplicateLeft.getSource(), deduplicateRight.getSource(),
-//				deduplicateLeft.getFieldTypes(), deduplicateRight.getFieldTypes(), deduplicateLeft.getKey(), deduplicateRight.getKey(), leftTableName, rightTableName, 
-//				Integer.valueOf(deduplicateLeft.getFieldTypes().size()), Integer.valueOf(deduplicateRight.getFieldTypes().size()), Boolean.valueOf(true));
-	
-		Double leftComps = deduplicateLeft.calculateComparisons();
-		Double rightComps = deduplicateRight.calculateComparisons();
-		if (leftComps != 0 && rightComps != 0)
-			if (leftComps.doubleValue() > rightComps.doubleValue()) {
-				newJoin = LogicalDeduplicateJoin.create(deduplicateLeft.getInput(0), deduplicateRight, join.getCondition(), join
-						.getVariablesSet(), JoinRelType.DIRTY_LEFT, deduplicateLeft.getSource(), deduplicateRight.getSource(), 
-						deduplicateLeft.getFieldTypes(), deduplicateRight.getFieldTypes(), deduplicateLeft.getKey(), deduplicateRight.getKey(), leftTableName, rightTableName, 
-						Integer.valueOf(deduplicateLeft.getFieldTypes().size()), Integer.valueOf(deduplicateRight.getFieldTypes().size()), Boolean.valueOf(true));
-			}
-			else {
-				newJoin = LogicalDeduplicateJoin.create(deduplicateLeft, deduplicateRight.getInput(0), join.getCondition(), join
-						.getVariablesSet(), JoinRelType.DIRTY_RIGHT, deduplicateLeft.getSource(), deduplicateRight.getSource(), 
-						deduplicateLeft.getFieldTypes(), deduplicateRight.getFieldTypes(), deduplicateLeft.getKey(), deduplicateRight.getKey(), leftTableName, rightTableName, 
-						Integer.valueOf(deduplicateLeft.getFieldTypes().size()), Integer.valueOf(deduplicateRight.getFieldTypes().size()), Boolean.valueOf(true));
-			}  
+		if(!deduplicationProperties.isRunAES())
+			newJoin = LogicalDeduplicateJoin.create((RelNode)deduplicateLeft, deduplicateRight.getInput(0), join.getCondition(), join
+						.getVariablesSet(), JoinRelType.DIRTY_RIGHT, deduplicateLeft.getSource(), deduplicateRight.getSource(),
+				deduplicateLeft.getFieldTypes(), deduplicateRight.getFieldTypes(), deduplicateLeft.getKey(), deduplicateRight.getKey(), leftTableName, rightTableName,
+				Integer.valueOf(deduplicateLeft.getFieldTypes().size()), Integer.valueOf(deduplicateRight.getFieldTypes().size()), Boolean.valueOf(true));
+		else {
+			Double leftComps = deduplicateLeft.calculateComparisons();
+			Double rightComps = deduplicateRight.calculateComparisons();
+			if (leftComps != 0 && rightComps != 0)
+				if (leftComps.doubleValue() > rightComps.doubleValue()) {
+					newJoin = LogicalDeduplicateJoin.create(deduplicateLeft.getInput(0), deduplicateRight, join.getCondition(), join
+									.getVariablesSet(), JoinRelType.DIRTY_LEFT, deduplicateLeft.getSource(), deduplicateRight.getSource(),
+							deduplicateLeft.getFieldTypes(), deduplicateRight.getFieldTypes(), deduplicateLeft.getKey(), deduplicateRight.getKey(), leftTableName, rightTableName,
+							Integer.valueOf(deduplicateLeft.getFieldTypes().size()), Integer.valueOf(deduplicateRight.getFieldTypes().size()), Boolean.valueOf(true));
+				} else {
+					newJoin = LogicalDeduplicateJoin.create(deduplicateLeft, deduplicateRight.getInput(0), join.getCondition(), join
+									.getVariablesSet(), JoinRelType.DIRTY_RIGHT, deduplicateLeft.getSource(), deduplicateRight.getSource(),
+							deduplicateLeft.getFieldTypes(), deduplicateRight.getFieldTypes(), deduplicateLeft.getKey(), deduplicateRight.getKey(), leftTableName, rightTableName,
+							Integer.valueOf(deduplicateLeft.getFieldTypes().size()), Integer.valueOf(deduplicateRight.getFieldTypes().size()), Boolean.valueOf(true));
+				}
+		}
 		if (newJoin != null)
 			call.transformTo(newJoin); 
 	}

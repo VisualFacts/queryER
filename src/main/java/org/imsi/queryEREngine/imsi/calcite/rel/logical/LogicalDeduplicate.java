@@ -8,7 +8,7 @@ import org.imsi.queryEREngine.apache.calcite.plan.RelTraitSet;
 import org.imsi.queryEREngine.apache.calcite.rel.RelNode;
 import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 import org.imsi.queryEREngine.imsi.calcite.rel.core.Deduplicate;
 
 /**

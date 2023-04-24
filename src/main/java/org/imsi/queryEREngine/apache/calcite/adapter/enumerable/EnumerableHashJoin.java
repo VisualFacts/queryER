@@ -42,7 +42,7 @@ import org.imsi.queryEREngine.apache.calcite.util.BuiltInMethod;
 import org.imsi.queryEREngine.apache.calcite.util.ImmutableIntList;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
 import org.imsi.queryEREngine.apache.calcite.util.Util;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 
 import com.google.common.collect.ImmutableList;
 

@@ -37,6 +37,11 @@ public class BlockSizePurging extends AbstractEfficiencyMethod {
         Iterator blocksIterator = blocks.iterator();
         while (blocksIterator.hasNext()) {
             AbstractBlock currentBlock = (AbstractBlock) blocksIterator.next();
+            if(currentBlock.isProtected()){
+                System.err.println("Block is protected "+currentBlock.getNoOfComparisons());
+
+                continue;
+            }
             if (maxEntities < currentBlock.getTotalBlockAssignments()) {
                 blocksIterator.remove();
             } 

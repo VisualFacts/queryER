@@ -23,7 +23,7 @@
  * those tables.</p>
  */
 @PackageMarker
-package org.imsi.queryEREngine.imsi.calcite.adapter.csv;
+package org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv;
 
 import org.apache.calcite.avatica.util.PackageMarker;
 

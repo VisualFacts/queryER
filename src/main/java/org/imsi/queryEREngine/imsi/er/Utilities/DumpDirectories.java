@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 public class DumpDirectories {
 	/**
-	 * 
+	 *
 	 */
 	private static  String dataDirPath;
 	private static String logsDirPath;
@@ -26,7 +26,7 @@ public class DumpDirectories {
 	private static String similaritiesDirPath;
 	private static String liFilePath;
 	private static String qIdsPath;
-	private static String vetiPath;
+	private static String offsetsDirPath;
 	private static File dataDir;
 	private static File logsDir;
 	private static File blockDir;
@@ -35,14 +35,14 @@ public class DumpDirectories {
 	private static File tableStatsDir;
 	private static File blockIndexStats;
 	private static File linksDir;
-	private static File vetiDir;
 	private static File qIdsDir;
 	private static File similaritiesDir;
+	private static File offsetsDir;
 
 	public DumpDirectories() {
 		super();
 	}
-	
+
 	public DumpDirectories(String dumpPath){
 		dataDirPath = dumpPath;
 		logsDirPath = dumpPath + "/logs/";
@@ -54,8 +54,8 @@ public class DumpDirectories {
 		linksDirPath = dumpPath + "/links/";
 		similaritiesDirPath = dumpPath + "/links/";
 		qIdsPath = dumpPath + "/qIds/";
-		vetiPath = dumpPath + "/veti/";
-		liFilePath = dumpPath + "/LI";
+		liFilePath = dumpPath + "/LI/";
+		offsetsDirPath = dumpPath + "/offsets/";
 		dataDir = new File(dataDirPath);
 		logsDir = new File(logsDirPath);
 		blockDir = new File(blockDirPath);
@@ -64,9 +64,9 @@ public class DumpDirectories {
 		tableStatsDir = new File(tableStatsDirPath);
 		blockIndexStats = new File(blockIndexStatsDirPath);
 		linksDir = new File(linksDirPath);
-		vetiDir = new File(vetiPath);
 		qIdsDir = new File(qIdsPath);
 		similaritiesDir = new File(similaritiesDirPath);
+		offsetsDir = new File(offsetsDirPath);
 	}
 
 	public  void generateDumpDirectories() throws IOException {
@@ -98,13 +98,12 @@ public class DumpDirectories {
 		if(!similaritiesDir.exists()) {
 			FileUtils.forceMkdir(similaritiesDir); //create directory
 		}
-		if(!vetiDir.exists()) {
-			FileUtils.forceMkdir(vetiDir); //create directory
-		}
 		if(!blockDir.exists()) {
 			FileUtils.forceMkdir(blockDir); //create directory
 		}
-
+		if(!offsetsDir.exists()) {
+			FileUtils.forceMkdir(offsetsDir); //create directory
+		}
 	}
 
 	public String getDataDirPath() {
@@ -147,10 +146,10 @@ public class DumpDirectories {
 		return qIdsPath + "qIds" + String.valueOf(qIdsDir.list().length + 1);
 	}
 
-	public String getVetiPath() {
-		return vetiPath;
+	public String getOffsetsDirPath() {
+		return offsetsDirPath;
 	}
-	
+
 	public String getLiFilePath() {
 		return liFilePath;
 	}

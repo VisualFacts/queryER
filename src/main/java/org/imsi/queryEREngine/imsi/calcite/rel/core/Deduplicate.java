@@ -12,7 +12,7 @@ import org.imsi.queryEREngine.apache.calcite.rel.SingleRel;
 import org.imsi.queryEREngine.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 
 /**
  * 
@@ -103,7 +103,6 @@ public abstract class Deduplicate extends SingleRel {
 	public Double calculateComparisons() {
 		if(comparisons == null)
 			comparisons = blockIndex.getComparisons(conjuctions, table.getQualifiedName().get(1));
-		System.out.println(table.getQualifiedName().get(1) + comparisons);
 		return comparisons;
 	}
 	public Double getComparisons() {		

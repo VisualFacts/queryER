@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
 import org.imsi.queryEREngine.imsi.er.DataStructures.Comparison;
 import org.imsi.queryEREngine.imsi.er.DataStructures.EntityIndex;
@@ -25,7 +24,6 @@ import org.imsi.queryEREngine.imsi.er.DataStructures.UnilateralBlock;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.imsi.queryEREngine.imsi.er.Utilities.SerializationUtilities;
 
 public class BlockIndexStatistic implements Serializable {
 
@@ -37,10 +35,11 @@ public class BlockIndexStatistic implements Serializable {
 	private Map<String, Set<Integer>> invertedIndex;
 	private Map<Integer, Set<String>> entitiesToBlocks;
 	private Map<String, Integer> blocksHistogram;
+	private int tableSize;
 	private Map<Integer, String> tokenToIndexMap;
 	private List<AbstractBlock> blocks;
 	private EntityIndex entityIndex;
-
+	
 	protected double validComparisons;
 	protected double averageWeight = 2.0;
 	protected double totalComparisons;
@@ -54,7 +53,9 @@ public class BlockIndexStatistic implements Serializable {
 		super();
 	}
 	public BlockIndexStatistic(HashMap<String, Double> averageBlockWeight, double averageWeight, 
-			double validComparisons, double totalComparisons, double meanEntitiesPerBlock, double meanComparisonsPerBlock) {
+			double validComparisons, double totalComparisons, double meanEntitiesPerBlock,
+							   double meanComparisonsPerBlock, int tableSize) {
+		this.tableSize = tableSize;
 		this.averageBlockWeight = averageBlockWeight;
 		this.averageWeight = averageWeight;
 		this.validComparisons = validComparisons;
@@ -63,7 +64,8 @@ public class BlockIndexStatistic implements Serializable {
 		this.meanComparisonsPerBlock = meanComparisonsPerBlock;
 	}
 
-	public BlockIndexStatistic(Map<String, Set<Integer>> invertedIndex, Map<Integer, Set<String>> entitiesToBlocks, String tableName) {
+	public BlockIndexStatistic(Map<String, Set<Integer>> invertedIndex,
+							   Map<Integer, Set<String>> entitiesToBlocks, String tableName) {
 		this.invertedIndex = invertedIndex;
 		this.entitiesToBlocks = entitiesToBlocks;
 		this.tokenToIndexMap = new HashMap<>(invertedIndex.size());
@@ -73,9 +75,8 @@ public class BlockIndexStatistic implements Serializable {
 				.collect(Collectors.toMap(Entry::getKey, e -> Integer.valueOf(e.getValue().size())));
 		this.tableName = tableName;
 		this.averageBlockWeight = new HashMap<>();
-		//createEI();
-		//metaBlocking();
-		//calculateValidComparisons();
+		metaBlocking();
+		calculateValidComparisons();
 		//getCBS();
 	}
 	
@@ -88,9 +89,9 @@ public class BlockIndexStatistic implements Serializable {
 			blocksSize.add(size);
 			uniqueComparisons.add(comps);
 		}
-//		purgeBlocks(getMaxComparisonsPerBlock(blocksSize, uniqueComparisons));
-//		clearEntitiesToBlocks();
-//		filterBlocks(0.4);
+		purgeBlocks(getMaxComparisonsPerBlock(blocksSize, uniqueComparisons));
+		clearEntitiesToBlocks();
+		filterBlocks(0.5);
 		this.blocks = parseIndex(invertedIndex);
 	}
 	
@@ -159,38 +160,24 @@ public class BlockIndexStatistic implements Serializable {
 		return blocks;
 	}
 
-	protected void createEI(){
-		List<Long> blocksSize = new ArrayList<>();
-		Set<Long> uniqueComparisons = new TreeSet<>();
-		for(String token : invertedIndex.keySet()) {
-			long size = invertedIndex.get(token).size();
-			long comps = (size*(size-1))/2;
-		}
-		this.blocks = parseIndex(invertedIndex);
-		if (entityIndex == null) {
-			entityIndex = new EntityIndex(blocks);
-		}
-		DumpDirectories dumpDirectories = new DumpDirectories();
-		entityIndex = null;
-	}
 	protected void getCBS() {
 		if (entityIndex == null) {
 			entityIndex = new EntityIndex(blocks, true);
 		}
 		for (AbstractBlock block : blocks) {
 			double comps_below_average = 0;
-			Iterator<Comparison> iterator = block.getComparisonIterator();
+			Iterator<Comparison> iterator = block.getComparisonIterator();		
 			double comps = block.getNoOfComparisons();
 			if(comps > 0) {
 				while(iterator.hasNext()) {
 					Comparison comparison = iterator.next();
 					double compWeight = entityIndex.getNoOfCommonBlocks(block.getBlockIndex(), comparison);
 					if(compWeight < averageWeight) comps_below_average++;
-				}
+				}	
 				double ratio = comps_below_average / comps;
 				averageBlockWeight.put(tokenToIndexMap.get(block.getBlockIndex()), ratio);
 			}
-		}
+		}	
 	}
 
 	protected void calculateValidComparisons() {
@@ -229,7 +216,6 @@ public class BlockIndexStatistic implements Serializable {
 		jGenerator = mapper.getFactory().createGenerator(fOut);
 		mapper.writeValue(jGenerator, this);
 		jGenerator.close();
-
 	}
 	
 	private static long getMaxComparisonsPerBlock(List<Long> blocksSize, Set<Long> distinctComparisonsLevel) {
@@ -279,6 +265,8 @@ public class BlockIndexStatistic implements Serializable {
         }
         return previousSize;
     }
+	public void setTableSize(int tableSize) {this.tableSize = tableSize; }
+	public int getTableSize(int tableSize) {return  tableSize; }
 	public double getAverageWeight() {
 		return averageWeight;
 	}
@@ -320,5 +308,9 @@ public class BlockIndexStatistic implements Serializable {
 	}
 	public void setMeanComparisonsPerBlock(double meanComparisonsPerBlock) {
 		this.meanComparisonsPerBlock = meanComparisonsPerBlock;
+	}
+
+	public int getTableSize() {
+		return tableSize;
 	}
 }

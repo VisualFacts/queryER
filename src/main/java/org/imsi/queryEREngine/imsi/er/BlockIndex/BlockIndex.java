@@ -3,8 +3,7 @@ package org.imsi.queryEREngine.imsi.er.BlockIndex;
 
 import static java.util.stream.Collectors.toMap;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.imsi.queryEREngine.apache.calcite.plan.RelOptTable;
 import org.imsi.queryEREngine.apache.calcite.plan.RelOptTable.ToRelContext;
 import org.imsi.queryEREngine.apache.calcite.rel.RelCollation;
@@ -37,7 +37,10 @@ import org.imsi.queryEREngine.apache.calcite.util.Pair;
 import org.imsi.queryEREngine.imsi.calcite.rel.logical.LogicalBlockIndexScan;
 import org.imsi.queryEREngine.imsi.calcite.util.DeduplicationExecution;
 import org.imsi.queryEREngine.imsi.er.BlockBuilding.ExtendedCanopyClustering;
-import org.imsi.queryEREngine.imsi.er.DataStructures.*;
+import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
+import org.imsi.queryEREngine.imsi.er.DataStructures.Attribute;
+import org.imsi.queryEREngine.imsi.er.DataStructures.EntityProfile;
+import org.imsi.queryEREngine.imsi.er.DataStructures.UnilateralBlock;
 import org.imsi.queryEREngine.imsi.er.Utilities.Converter;
 import org.imsi.queryEREngine.imsi.er.Utilities.DumpDirectories;
 import org.imsi.queryEREngine.imsi.er.Utilities.EquiFreqBinning;
@@ -57,9 +60,8 @@ implements  TranslatableTable {
 	protected Map<String, Integer> tfIdf;
 	protected Set<Integer> joinedIds;
 	protected Map<Integer, Set<String>> entitiesToBlocks;
-	protected static ExtendedCanopyClustering eCC;
-	private DumpDirectories dumpDirectories = new DumpDirectories();
-
+	protected DumpDirectories dumpDirectories = new DumpDirectories();
+	
 	public BlockIndex() {
 		this.entityProfiles = new ArrayList<EntityProfile>();
 		this.invertedIndex = new HashMap<String, Set<Integer>>();
@@ -92,10 +94,33 @@ implements  TranslatableTable {
 	@SuppressWarnings("unchecked")
 	protected Map<String, Set<Integer>> indexEntities(int sourceId, List<EntityProfile> profiles) {
 		invertedIndex = new HashMap<String, Set<Integer>>();
-		InputStream file = this.getClass().getClassLoader().getResourceAsStream("stopwords_SER");
+		InputStream txtFile = this.getClass().getClassLoader().getResourceAsStream("stopwords/stopwords.txt");
 		//file = new File(this.getClass().getClassLoader().getResource("stopwords_SER").toExternalForm());
+		HashSet<String> stopwords1 = new HashSet<>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(txtFile));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				stopwords1.add(line.trim());
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		SerializationUtilities.storeSerializedObject(stopwords1, "src/main/resources/stopwords_SER");
+
+		InputStream file = this.getClass().getClassLoader().getResourceAsStream("stopwords_SER");
 		HashSet<String> stopwords = (HashSet<String>) SerializationUtilities
 				.loadSerializedObject(file);
+
+
+
+
+
 		HashMap<String, Integer> tfIdf = new HashMap<>();
 		for (EntityProfile profile : profiles) {
 			for (Attribute attribute : profile.getAttributes()) {
@@ -117,16 +142,8 @@ implements  TranslatableTable {
 				}
 			}
 		}
-//		this.setTfIdf(tfIdf);
-//		sortTfIdf();
-//		int i = 0;
-//		for (String k : this.tfIdf.keySet()) {
-//			if( i < 100){
-//				System.out.println(k + ": " + this.tfIdf.get(k));
-//				System.out.println(invertedIndex.get(k).size());
-//			}
-//			i++;
-//		}
+		
+		this.setTfIdf(tfIdf);
 		return invertedIndex;
 	}    
 
@@ -236,16 +253,12 @@ implements  TranslatableTable {
 	public void storeBlockIndex(String path, String tableName) {
 		SerializationUtilities.storeSerializedObject(this.invertedIndex, path + tableName + "InvertedIndex" );
 		SerializationUtilities.storeSerializedObject(this.entitiesToBlocks, path + tableName + "EntitiesToBlocks" );
-
-		EntityIndex entityIndex = new EntityIndex(parseIndex(this.invertedIndex));
-		SerializationUtilities.storeSerializedObject(entityIndex, path + tableName + "EntityIndex" );
-
+		SerializationUtilities.storeSerializedObject(this.entityProfiles, path + tableName);
 	}
 	
 	public void loadBlockIndex(String path, String tableName) {
 		this.invertedIndex = (Map<String, Set<Integer>>) SerializationUtilities.loadSerializedObject(path + tableName + "InvertedIndex" );
 		this.entitiesToBlocks = (Map<Integer, Set<String>>) SerializationUtilities.loadSerializedObject(path + tableName + "EntitiesToBlocks");
-
 	}
 	
 	

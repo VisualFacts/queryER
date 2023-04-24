@@ -18,6 +18,7 @@ package org.imsi.queryEREngine.imsi.calcite.adapter.enumerable;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.imsi.queryEREngine.apache.calcite.adapter.enumerable.EnumerableConvention;
 import org.imsi.queryEREngine.apache.calcite.adapter.enumerable.EnumerableRel;
@@ -33,9 +34,10 @@ import org.imsi.queryEREngine.apache.calcite.rel.RelNode;
 import org.imsi.queryEREngine.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.imsi.queryEREngine.apache.calcite.rex.RexNode;
 import org.imsi.queryEREngine.apache.calcite.util.Source;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 import org.imsi.queryEREngine.imsi.calcite.rel.core.Deduplicate;
 import org.imsi.queryEREngine.imsi.calcite.util.NewBuiltInMethod;
+import org.imsi.queryEREngine.imsi.er.Utilities.TokenUtility;
 
 
 /**
@@ -124,11 +126,14 @@ public class EnumerableDeduplicate extends Deduplicate implements EnumerableRel 
 				Expressions.constant(this.key),
 				Expressions.constant(this.source.toString()),
 				Expressions.constant(this.fieldTypes),
-				Expressions.constant(ab)
+				Expressions.constant(ab),
+				Expressions.constant(TokenUtility.getTokens(this.conjuctions))
 		)));
 		return implementor.result(physType, builder.toBlock());
 
 	}
+
+
 }
 
 

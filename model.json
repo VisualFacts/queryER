@@ -5,13 +5,9 @@
      {
       "name": "oag",
       "type": "custom",
-      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvSchemaFactory",
+      "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvSchemaFactory",
       "operand": {
-<<<<<<< HEAD
-        "directory": "/home/vstam/testing",
-=======
-        "directory": "/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/VF/queryER-data/testing",
->>>>>>> e343fd097aba1b42b3460c2a4f84013e9380c1a7
+        "directory": "/Users/giorgos/Desktop/publications",
         "flavor": "translatable"
       }
     }

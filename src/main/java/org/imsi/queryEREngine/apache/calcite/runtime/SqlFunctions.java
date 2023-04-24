@@ -1904,6 +1904,7 @@ public class SqlFunctions {
 			}
 
 			public static double toDouble(String s) {
+				if(s.isEmpty()) return 0.0;
 				return Double.parseDouble(s.trim());
 			}
 

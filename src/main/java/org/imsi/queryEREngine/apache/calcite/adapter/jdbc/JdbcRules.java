@@ -80,7 +80,7 @@ import org.imsi.queryEREngine.apache.calcite.util.Source;
 import org.imsi.queryEREngine.apache.calcite.util.Util;
 import org.imsi.queryEREngine.apache.calcite.util.trace.CalciteTrace;
 import org.slf4j.Logger;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

@@ -4,26 +4,20 @@ import org.apache.calcite.linq4j.AbstractEnumerable;
 import org.apache.calcite.linq4j.Enumerable;
 import org.apache.calcite.linq4j.Enumerator;
 import org.imsi.queryEREngine.apache.calcite.util.Sources;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvEnumerator;
-import org.imsi.queryEREngine.imsi.calcite.adapter.csv.CsvFieldType;
-import org.imsi.queryEREngine.imsi.er.MetaBlocking.*;
-import org.imsi.queryEREngine.imsi.er.QueryEngine;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvEnumerator;
+import org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvFieldType;
 import org.imsi.queryEREngine.imsi.er.BlockIndex.QueryBlockIndex;
-import org.imsi.queryEREngine.imsi.er.DataStructures.AbstractBlock;
-import org.imsi.queryEREngine.imsi.er.DataStructures.DecomposedBlock;
-import org.imsi.queryEREngine.imsi.er.DataStructures.EntityResolvedTuple;
+import org.imsi.queryEREngine.imsi.er.DataStructures.*;
 import org.imsi.queryEREngine.imsi.er.EfficiencyLayer.BlockRefinement.ComparisonsBasedBlockPurging;
+import org.imsi.queryEREngine.imsi.er.MetaBlocking.*;
 import org.imsi.queryEREngine.imsi.er.Utilities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,52 +51,42 @@ public class DeduplicationExecution<T> {
      */
 
 
-	private static final String pathToPropertiesFile = "deduplication.properties";
-	private static Properties properties;
 
-	private static final String BP = "mb.bp";
-	private static final String BF = "mb.bf";
-	private static final String EP = "mb.ep";
-	private static final String LINKS = "links";
-	private static final String FILTER_PARAM = "filter.param";
+    public static List<AbstractBlock> blocks;
+    public static Set<Integer> qIds = new HashSet<>();
 
-	private static boolean runBP = true;
-	private static boolean runBF = true;
-	private static boolean runEP = true;
-	private static boolean runLinks = true;
-	private static double filterParam = 0.0;
     private static double scanTime = 0.0;
-	private static DumpDirectories dumpDirectories = new DumpDirectories();
-	public static List<AbstractBlock> blocks;
-	public static Set<Integer> qIds = new HashSet<>();
+    private static final DumpDirectories dumpDirectories = new DumpDirectories();
+    private static final DeduplicationProperties deduplicationProperties = new DeduplicationProperties();
+
     @SuppressWarnings({"rawtypes", "unchecked"})
 
     public static <T> EntityResolvedTuple deduplicateEnumerator(Enumerable<T> enumerable, String tableName,
-    		Integer key, String source, List<CsvFieldType> fieldTypes, AtomicBoolean ab) {
-    	CsvEnumerator<Object[]> originalEnumerator = new CsvEnumerator(Sources.of(new File(source)), ab, fieldTypes, key);
+                                                                Integer key, String source, List<CsvFieldType> fieldTypes, AtomicBoolean ab, List<String> tokens) {
+        CsvEnumerator<Object[]> originalEnumerator = new CsvEnumerator(Sources.of(new File(source)), ab, fieldTypes, key);
         double scanStart = System.currentTimeMillis();
         HashMap<Integer, Object[]> queryData = createMap((AbstractEnumerable<Object[]>) enumerable, key);
         scanTime = (System.currentTimeMillis() - scanStart) / 1000;
-        return deduplicate(queryData, key, fieldTypes.size(), tableName, originalEnumerator, source);
-    	
+        return deduplicate(queryData, key, fieldTypes.size(), tableName, originalEnumerator, source, tokens);
+
     }
 
     public static EntityResolvedTuple deduplicate(HashMap<Integer, Object[]> queryData, Integer key, Integer noOfAttributes,
-			String tableName, Enumerator<Object[]> originalEnumerator, String source) {
+                                                  String tableName, Enumerator<Object[]> originalEnumerator, String source, List<String> tokens) {
 
-    	double setPropertiesStartTime = System.currentTimeMillis();
-    	setProperties();
-    	double setPropertiesTime = (System.currentTimeMillis() - setPropertiesStartTime);
+
         boolean firstDedup = false;
 
         System.out.println("Deduplicating: " + tableName);
-    	double deduplicateStartTime = System.currentTimeMillis() - setPropertiesTime;
-        
+        System.out.println(tokens);
+
+        double deduplicateStartTime = System.currentTimeMillis();
+
         // Check for links and remove qIds that have links
         double linksStartTime = System.currentTimeMillis();
         HashMap<Integer, Set<Integer>> links = loadLinks(tableName);
         HashMap<Integer, Object[]> dataWithLinks = new HashMap<>();
-        if(links == null) firstDedup = true;
+        if (links == null) firstDedup = true;
         Set<Integer> qIds = new HashSet<>();
         Set<Integer> totalIds = new HashSet<>();
 
@@ -115,16 +99,16 @@ public class DeduplicationExecution<T> {
          * Now we have two hashmaps 1) dataWithLinks, queryData = data without links.
          * After we deduplicate queryData, we will merge these two tables.
          */
-        if(!firstDedup) {
+        if (!firstDedup) {
             // Clear links and keep only qIds
-        	Set<Integer> linkedIds = getLinkedIds(key, links,  qIds); // Get extra Link Ids that are not in queryData
-        	dataWithLinks = (HashMap<Integer, Object[]>) links.keySet().stream()
-        		    .filter(queryData::containsKey)
-        		    .collect(Collectors.toMap(Function.identity(), queryData::get));
-        	dataWithLinks = getExtraData(dataWithLinks, linkedIds, originalEnumerator, key);
-        	queryData.keySet().removeAll(links.keySet()); 
-    		totalIds.addAll(linkedIds);  // Add links back
-    		
+            Set<Integer> linkedIds = getLinkedIds(key, links, qIds); // Get extra Link Ids that are not in queryData
+            dataWithLinks = (HashMap<Integer, Object[]>) links.keySet().stream()
+                    .filter(queryData::containsKey)
+                    .collect(Collectors.toMap(Function.identity(), queryData::get));
+            dataWithLinks = getExtraData(dataWithLinks, linkedIds, originalEnumerator, key);
+            queryData.keySet().removeAll(links.keySet());
+            totalIds.addAll(linkedIds);  // Add links back
+
         }
         final Set<Integer> qIdsNoLinks = MapUtilities.deepCopySet(queryData.keySet());
 
@@ -134,9 +118,10 @@ public class DeduplicationExecution<T> {
         String queryDataSize = Integer.toString(queryData.size());
 
         double blockingStartTime = System.currentTimeMillis();
-        QueryBlockIndex queryBlockIndex = new QueryBlockIndex();
-        queryBlockIndex.createBlockIndex(queryData, key);
+        QueryBlockIndex queryBlockIndex = new QueryBlockIndex(tableName);
+        queryBlockIndex.createBlockIndex(queryData, key, tokens);
         queryBlockIndex.buildQueryBlocks();
+        qIds = queryBlockIndex.getIds();
         double blockingEndTime = System.currentTimeMillis();
         String blockingTime = Double.toString((blockingEndTime - blockingStartTime) / 1000);
         boolean doER = queryData.size() > 0 ? true : false;
@@ -147,17 +132,37 @@ public class DeduplicationExecution<T> {
         double blockJoinEnd = System.currentTimeMillis();
         String blockJoinTime = Double.toString((blockJoinEnd - blockJoinStart) / 1000);
 
+        double selectivity = qIds.size() / (double) queryBlockIndex.getBlockIndexStatistic().getTableSize();
+        System.err.println("Q Selectivity:\t"+selectivity);
+
+
 
         String blocksSize = Integer.toString(blocks.size());
         String blockSizes = getBlockSizes(blocks);
         String blockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
 
+        //sort queryblockindex  by size of values   (block size)
+
+//        queryBlockIndex.sortIndex();
+//
+//        Set<String> keys = queryBlockIndex.getInvertedIndex().keySet();
+//
+//        keys.forEach(k -> {
+//            if (queryBlockIndex.getInvertedIndex().get(k).size() > 1) {
+//                System.out.println("Key: " + k + " Value: " + queryBlockIndex.getInvertedIndex().get(k));
+//            }
+//        });
+
+
+            // META BLOCKING
+
+
         // PURGING
         double blockPurgingStartTime = System.currentTimeMillis();
-        
+
         ComparisonsBasedBlockPurging blockPurging = new ComparisonsBasedBlockPurging();
-        if(runBP) blockPurging.applyProcessing(blocks);
-        
+        if (deduplicationProperties.isRunBP()) blockPurging.applyProcessing(blocks);
+
         double blockPurgingEndTime = System.currentTimeMillis();
 
         String purgingBlocksSize = Integer.toString(blocks.size());
@@ -165,11 +170,7 @@ public class DeduplicationExecution<T> {
         String purgingBlockSizes = getBlockSizes(blocks);
         int entities = queryBlockIndex.blocksToEntities(blocks).size();
         String purgeBlockEntities = Integer.toString(entities);
-        double comps = 0.0;
 
-		for(AbstractBlock block : blocks) {
-			comps += block.getNoOfComparisons();
-		}
         String filterBlocksSize = "";
         String filterTime = "";
         String filterBlockSizes = "";
@@ -179,47 +180,41 @@ public class DeduplicationExecution<T> {
         String ePEntities = "";
         boolean epFlag = false;
         if (blocks.size() > 10) {
-        	// FILTERING
+            // FILTERING
             double blockFilteringStartTime = System.currentTimeMillis();
-            if(tableName.contains("publications")) filterParam = 0.55;
-	        BlockFiltering bFiltering = new BlockFiltering(filterParam);
-	        if(runBF) bFiltering.applyProcessing(blocks);
-
+            BlockFiltering bFiltering = new BlockFiltering(deduplicationProperties.getFilterParam());
+            if (deduplicationProperties.isRunBF()) bFiltering.applyProcessing(blocks);
             double blockFilteringEndTime = System.currentTimeMillis();
             filterBlocksSize = Integer.toString(blocks.size());
             filterTime = Double.toString((blockFilteringEndTime - blockFilteringStartTime) / 1000);
             filterBlockSizes = getBlockSizes(blocks);
             filterBlockEntities = Integer.toString(queryBlockIndex.blocksToEntities(blocks).size());
 
-
             blocks.remove(blocks.size() - 1);
+
             // EDGE PRUNING
             double edgePruningStartTime = System.currentTimeMillis();
-            //EfficientEdgePruning eEP = new EfficientEdgePruning(qIds);
-            CardinalityEdgePruning eEP = new CardinalityEdgePruning(WeightingScheme.CBS, qIds);
+            CardinalityEdgePruning eEP = new CardinalityEdgePruning(WeightingScheme.ECBS, qIds, selectivity);
+            if (deduplicationProperties.isRunEP()) {
+                eEP.applyProcessing(blocks);
+                double edgePruningEndTime = System.currentTimeMillis();
 
-            if(runEP) {
-            	eEP.applyProcessing(blocks);
-	            double edgePruningEndTime = System.currentTimeMillis();
-	
-	            epTime = Double.toString((edgePruningEndTime - edgePruningStartTime) / 1000);
-	            double totalComps = 0;
-	            for (AbstractBlock block : blocks) {
-	            	totalComps += block.getNoOfComparisons();
-	            }
-	            epTotalComps = Double.toString(totalComps);
-	            ePEntities = Integer.toString(queryBlockIndex.blocksToEntitiesD(blocks).size());
-	            epFlag = true;
-	            
+                epTime = Double.toString((edgePruningEndTime - edgePruningStartTime) / 1000);
+                double totalComps = 0;
+                for (AbstractBlock block : blocks) {
+                    totalComps += block.getNoOfComparisons();
+                }
+                epTotalComps = Double.toString(totalComps);
+                ePEntities = Integer.toString(queryBlockIndex.blocksToEntitiesD(blocks).size());
+                epFlag = true;
             }
-
         }
         //Get ids of final entities, and add back qIds that were cut from m-blocking
         Set<Integer> blockQids = new HashSet<>();
-        if(epFlag)
-        	blockQids = queryBlockIndex.blocksToEntitiesD(blocks);
+        if (epFlag)
+            blockQids = queryBlockIndex.blocksToEntitiesD(blocks);
         else
-        	blockQids = queryBlockIndex.blocksToEntities(blocks);
+            blockQids = queryBlockIndex.blocksToEntities(blocks);
         totalIds.addAll(blockQids);
         totalIds.addAll(qIds);
         DeduplicationExecution.qIds = qIds;
@@ -228,21 +223,21 @@ public class DeduplicationExecution<T> {
 
         RandomAccessReader randomAccessReader = null;
         try {
-        	randomAccessReader = RandomAccessReader.open(new File(source));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+            randomAccessReader = RandomAccessReader.open(new File(source));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         double comparisonStartTime = System.currentTimeMillis();
-        
+
         // Merge queryData with dataWithLinks
 
         queryData = mergeMaps(queryData, dataWithLinks);
         ExecuteBlockComparisons<?> ebc = new ExecuteBlockComparisons(queryData, randomAccessReader);
-        EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes);
+        EntityResolvedTuple<?> entityResolvedTuple = ebc.comparisonExecutionAll(blocks, qIdsNoLinks, key, noOfAttributes,tableName);
         double comparisonEndTime = System.currentTimeMillis();
         double links2StartTime = System.currentTimeMillis();
-        entityResolvedTuple.mergeLinks(links, tableName, firstDedup, totalIds, runLinks);
+        entityResolvedTuple.mergeLinks(links, tableName, firstDedup, totalIds, deduplicationProperties.isRunLinks());
         double links2EndTime = System.currentTimeMillis();
 
         Integer executedComparisons = entityResolvedTuple.getComparisons();
@@ -255,19 +250,12 @@ public class DeduplicationExecution<T> {
         String totalDeduplicationTime = Double.toString((deduplicateEndTime - deduplicateStartTime) / 1000);
         String linksTime = Double.toString(links1Time + ((links2EndTime - links2StartTime) / 1000));
 
-//        System.out.println("Links Time\t\t" + linksTime);
-//        System.out.println("Blocking Time\t\t" + String.valueOf((blockJoinEnd - blockingStartTime)/1000));
-//        System.out.println("Block Purging Time\t\t" + purgingTime);
-//        System.out.println("Block Filtering Time\t\t" + filterTime);
-//        System.out.println("Edge Pruning Time\t\t" + epTime);
-//        System.out.println("Comparison Execution Time\t\t" + comparisonTime);
-//        System.out.println("Total Deduplication Time\t\t" + totalDeduplicationTime);
         // Log everything
         try {
             FileWriter logWriter = new FileWriter(dumpDirectories.getLogsDirPath(), true);
-            logWriter.write(tableName + "," + queryDataSize + "," + scanTime + "," + linksTime + "," + blockJoinTime + "," + blockingTime +  "," + blocksSize + "," +
+            logWriter.write(tableName + "," + queryDataSize + "," + scanTime + "," + linksTime + "," + blockJoinTime + "," + blockingTime + "," + blocksSize + "," +
                     blockSizes + "," + blockEntities + "," + purgingBlocksSize + "," + purgingTime + "," + purgingBlockSizes + "," +
-                    purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + ","  + filterBlockEntities + "," +
+                    purgeBlockEntities + "," + filterBlocksSize + "," + filterTime + "," + filterBlockSizes + "," + filterBlockEntities + "," +
                     epTime + "," + epTotalComps + "," + ePEntities + "," + matches + "," + executedComparisons + "," + jaroTime + "," +
                     comparisonTime + "," + revUfCreationTime + "," + totalEntities + "," + totalDeduplicationTime + "\n");
             logWriter.close();
@@ -276,66 +264,66 @@ public class DeduplicationExecution<T> {
             e.printStackTrace();
         }
 
-        
+
         return entityResolvedTuple;
-		
-	}
 
-	private static HashMap<Integer, Object[]> getExtraData(HashMap<Integer, Object[]> dataWithLinks, Set<Integer> linkedIds, Enumerator<Object[]> originalEnumerator, int tableKey) {
-		AbstractEnumerable<Object[]> comparisonEnumerable = createEnumerable((Enumerator<Object[]>) originalEnumerator, linkedIds, tableKey);
-        originalEnumerator.close();
-		return mergeMaps(dataWithLinks, createMap(comparisonEnumerable, tableKey));
-	}
-
-	public static Set<Integer> getLinkedIds(Integer key, Map<Integer, Set<Integer>> links, Set<Integer> qIds) {
-
-    	Set<Integer> linkedIds = new HashSet<>();
-    	Set<Set<Integer>> sublinks = links.entrySet().stream().filter(entry -> {
-    		return qIds.contains(entry.getKey());
-    	}).map(entry -> {
-    		return entry.getValue();
-    	}).collect(Collectors.toSet());
-    	for (Set<Integer> sublink : sublinks) {
-    		linkedIds.addAll(sublink);
-    	}   	
-    	linkedIds.removeAll(qIds);
-
-    	return linkedIds;
     }
 
-	private static String getBlockSizes(List<AbstractBlock> blocks) {
-    	double maxBlockSize = 0.0;
-    	double totalBlockSize = 0.0;
-    	double totalComps = 0.0;
-    	double avgBlockSize;
+    private static HashMap<Integer, Object[]> getExtraData(HashMap<Integer, Object[]> dataWithLinks, Set<Integer> linkedIds, Enumerator<Object[]> originalEnumerator, int tableKey) {
+        AbstractEnumerable<Object[]> comparisonEnumerable = createEnumerable((Enumerator<Object[]>) originalEnumerator, linkedIds, tableKey);
+        originalEnumerator.close();
+        return mergeMaps(dataWithLinks, createMap(comparisonEnumerable, tableKey));
+    }
 
-		for(AbstractBlock block : blocks) {
-			double blockSize = block.getTotalBlockAssignments();
-			if(blockSize > maxBlockSize) maxBlockSize = blockSize;
-			totalBlockSize += blockSize;
+    public static Set<Integer> getLinkedIds(Integer key, Map<Integer, Set<Integer>> links, Set<Integer> qIds) {
+
+        Set<Integer> linkedIds = new HashSet<>();
+        Set<Set<Integer>> sublinks = links.entrySet().stream().filter(entry -> {
+            return qIds.contains(entry.getKey());
+        }).map(entry -> {
+            return entry.getValue();
+        }).collect(Collectors.toSet());
+        for (Set<Integer> sublink : sublinks) {
+            linkedIds.addAll(sublink);
+        }
+        linkedIds.removeAll(qIds);
+
+        return linkedIds;
+    }
+
+    private static String getBlockSizes(List<AbstractBlock> blocks) {
+        double maxBlockSize = 0.0;
+        double totalBlockSize = 0.0;
+        double totalComps = 0.0;
+        double avgBlockSize;
+
+        for (AbstractBlock block : blocks) {
+            double blockSize = block.getTotalBlockAssignments();
+            if (blockSize > maxBlockSize) maxBlockSize = blockSize;
+            totalBlockSize += blockSize;
             totalComps += block.getNoOfComparisons();
 
-		}
-		avgBlockSize = totalBlockSize/blocks.size();
-		return String.valueOf(maxBlockSize) + "," + avgBlockSize + "," + totalComps;
-		
-	}
+        }
+        avgBlockSize = totalBlockSize / blocks.size();
+        return String.valueOf(maxBlockSize) + "," + avgBlockSize + "," + totalComps;
 
-	private static HashMap<Integer, Object[]> mergeMaps(HashMap<Integer, Object[]> map1, HashMap<Integer, Object[]> map2){
-		map1.forEach(
-        	    (key, value) -> map2.put(key, value)
-        	);
+    }
+
+    private static HashMap<Integer, Object[]> mergeMaps(HashMap<Integer, Object[]> map1, HashMap<Integer, Object[]> map2) {
+        map1.forEach(
+                (key, value) -> map2.put(key, value)
+        );
         return map2;
-	}
+    }
 
     private static double storeIds(Set<Integer> qIds) {
-    	double startTime = System.currentTimeMillis();
+        double startTime = System.currentTimeMillis();
         SerializationUtilities.storeSerializedObject(qIds, dumpDirectories.getqIdsPath());
         return System.currentTimeMillis() - startTime;
     }
 
     private static double storeBlocks(List<AbstractBlock> blocks, String tableName) {
-    	double startTime = System.currentTimeMillis();
+        double startTime = System.currentTimeMillis();
         List<DecomposedBlock> dBlocks = (List<DecomposedBlock>) (List<? extends AbstractBlock>) blocks;
         SerializationUtilities.storeSerializedObject(dBlocks, dumpDirectories.getBlockDirPath());
         return System.currentTimeMillis() - startTime;
@@ -352,11 +340,11 @@ public class DeduplicationExecution<T> {
 //			entityResolvedTuple.sortEntities();
 //		if(DEDUPLICATION_EXEC_LOGGER.isDebugEnabled()) 
 //			DEDUPLICATION_EXEC_LOGGER.debug("Final Size: " + entityResolvedTuple.finalData.size());
-    	entityResolvedTuple.groupEntities(projects, fieldNames);
+        entityResolvedTuple.groupEntities(projects, fieldNames);
         return entityResolvedTuple;
 
     }
-    
+
 
     /**
      * @param enumerable Data of the table
@@ -366,7 +354,7 @@ public class DeduplicationExecution<T> {
     private static HashMap<Integer, Object[]> createMap(AbstractEnumerable<Object[]> enumerable, Integer key) {
         List<Object[]> entityList = enumerable.toList();
         HashMap<Integer, Object[]> entityMap = new HashMap<Integer, Object[]>();
-       
+
         for (Object[] entity : entityList) {
             entityMap.put(Integer.parseInt(entity[key].toString()), entity);
         }
@@ -374,11 +362,11 @@ public class DeduplicationExecution<T> {
     }
 
     public static HashMap<Integer, Set<Integer>> loadLinks(String table) {
-    	if(new File(dumpDirectories.getLinksDirPath() + table).exists() && runLinks)
-    		return (HashMap<Integer, Set<Integer>>) SerializationUtilities.loadSerializedObject(dumpDirectories.getLinksDirPath() + table);
-    	else  return null;
+        if (new File(dumpDirectories.getLinksDirPath() + table).exists() && deduplicationProperties.isRunLinks())
+            return (HashMap<Integer, Set<Integer>>) SerializationUtilities.loadSerializedObject(dumpDirectories.getLinksDirPath() + table);
+        else return null;
     }
-    
+
     /**
      * @param enumerator Enumerator data
      * @param qIds       Qids to pick from enumerator
@@ -420,31 +408,8 @@ public class DeduplicationExecution<T> {
 
         };
     }
-    
-    
-    
-    private static void setProperties() {
-		properties = loadProperties();
-		if(!properties.isEmpty()) {
-			runBP = Boolean.parseBoolean(properties.getProperty(BP));
-            runBF = Boolean.parseBoolean(properties.getProperty(BF));
-            runEP = Boolean.parseBoolean(properties.getProperty(EP));
-            runLinks = Boolean.parseBoolean(properties.getProperty(LINKS));
-            filterParam = Double.parseDouble(properties.getProperty(FILTER_PARAM));
-		}
-	}
-	
-	private static Properties loadProperties() {
-		
-        Properties prop = new Properties();
-		try (InputStream input =  DeduplicationExecution.class.getClassLoader().getResourceAsStream(pathToPropertiesFile)) {
-            // load a properties file
-            prop.load(input);
-                       
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-		return prop;
-	}
+
+
+
 
 }

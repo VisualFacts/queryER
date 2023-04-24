@@ -15,6 +15,8 @@ public class MapUtilities {
 	}
 	
 	public static Set<Integer> deepCopySet(Set<Integer> set){
-		return set.stream().map(Integer::new).collect(Collectors.toSet());
+//		return set.stream().map(Integer::new).collect(Collectors.toSet());
+//		return set.stream().map(Integer::valueOf).collect(Collectors.toSet());
+		return set.stream().collect(Collectors.toSet());
 	}
 }
