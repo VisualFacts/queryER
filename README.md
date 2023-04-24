@@ -20,6 +20,27 @@ The queries that were used for the experimental evaluation can be found in the q
 ### Datasets
 The used datasets can be found <a href="https://imisathena-my.sharepoint.com/:f:/g/personal/bstam_athenarc_gr/EpNmNCfR_TBHjsQ2RES41noBQ_tMLB0YWmIgFxC3dP6M3Q?e=vk7Ezx">here</a>. Depending on the dataset the user wants to test, model.json must point to the specific folder, ex. "home/user/dsd". 
 
+| E | &#124;E&#124; | &#124;L<sub>E</sub> | &#124;A&#124; | &#124;TBI&#124;|
+| --- | --- | --- | --- | --- |
+|DSD | 66879 | 5347 | 4 |88K|
+|OAO | 55464 | 5464 | 3 | 22K|
+|OAP | 500K  | 58074 | 8 | 170K|
+|PPL200K | 200K | 64762 | 12 | 160K|
+|PPL500K | 500K | 161443 | 12 | 280K|
+|PPL1M   | 1M | 322722 | 12 | 470K|
+|PPL1.5M  | 1.5M 403417 | 12 | 590K|
+|PPL2M 2M | 645489 | 12 | 850K|
+|OAGP200K | 200K |5679 | 18 110K|
+|OAGP500K | 500K 54132 | 18 | 180K|
+|OAGP1M | 1M | 78341 | 18 | 240K|
+|OAGP1.5M | 1.5M | 135313 | 18 | 320K|
+|OAGP2M | 2M | 267843 | 18 | 360K|
+|OAGV | 130K | 29841 | 5 | 55K|
+
+
+| git status | List all new or modified files |
+| git diff | Show file differences that haven't been staged |
+
 ### Run
 To create the jar file, run: **`mvn package`**
 To run the jar file, copy and paste the following command to the console:
