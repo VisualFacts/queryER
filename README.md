@@ -81,10 +81,10 @@ In the default configuration the framework asks the user for queries, and does n
 
 For debugging and experimental purposes, the following can also be provided.<br>
 <ul>
-<li>**query.runs**{Integer}<li/>
-<li>**query.filepath=resources/tests/test_synth.sql** {Path to an sql file, if not provided the framework will ask the user for a query input}<li/>
-<li>**ground_truth.calculate**:{Boolean} Whether to calculate Ground Truth and find the Pair Completeness. Used only for SP queries. 
-<b>BEWARE:</b>In case of ground_truth calculation the ground_truth data must be on the same folder as the data files.<li/>
+<li> <b>query.runs</b> {Integer}</li>
+<li><b>query.filepath={String}</b> {Path to an sql file, if not provided the framework will ask the user for a query input</li>
+<li><b>ground_truth.calculate</b>:{Boolean} Whether to calculate Ground Truth and find the Pair Completeness. Used only for SP queries. 
+<b>BEWARE:</b>In case of ground_truth calculation the ground_truth data must be on the same folder as the data files.</li>
 </ul>
 
 ### Queries
