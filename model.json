@@ -7,7 +7,7 @@
       "type": "custom",
       "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvSchemaFactory",
       "operand": {
-        "directory": "/Users/giorgos/Desktop/publications",
+        "directory": "/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/VF/Code/queryER/data/dsd",
         "flavor": "translatable"
       }
     }
