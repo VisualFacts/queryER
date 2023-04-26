@@ -8,9 +8,6 @@ public class QueryErApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(QueryErApiApplication.class, args);
-
-
-
 	}
 
 

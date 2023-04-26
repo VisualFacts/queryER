@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "defaultSchema": "oag",
+  "defaultSchema": "q",
   "schemas": [
      {
-      "name": "oag",
+      "name": "q",
       "type": "custom",
       "factory": "org.imsi.queryEREngine.imsi.calcite.adapter.enumerable.csv.CsvSchemaFactory",
       "operand": {
-        "directory": "/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/VF/Code/queryER/data/dsd",
+        "directory": "/Users/vasilisstamatopoulos/Downloads/queryER-data/oag/papers/200k",
         "flavor": "translatable"
       }
     }
