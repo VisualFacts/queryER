@@ -59,7 +59,7 @@ To run the jar file, copy and paste the following command to the console:
 java -jar ./target/queryER-API-2.0.0-runnable.jar
 
 ### Results
-The query results are dumped to a csv file located at "./data/queryResults.csv"
+The query results are dumped to a csv file located "./queryResults.csv"
 
 ### Online Tool
 A working demo of queryER can be found online [here](http://83.212.72.69:9000)
