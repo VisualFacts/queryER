@@ -10,10 +10,10 @@ Code written in Java 8.
 ### Configuration
 In the default configuration the framework asks the user for queries, and does not need any further configuration.  The framework is configured through the **config.properties** file which has to be provided with the following properties:<br><br>
 <ul>
-<li><b>schema.name</b>: {String} The schema of the database. The name of the schema can be anything the user wants default = q </li> 
+<li><b>schema.name</b>: {String} The schema of the database. The name of the schema can be anything the user wants, default = q </li> 
 <li><b>dump.path</b>: {String} Path to where the dump files of the framework will be stored. This includes, indices and statistics.</li>
 <li><b>calcite.connection</b>: {String} The default calcite connection, points to model.json. If not provided, the default model.json from resources will be loaded</li>
-<li><b> model.json</b>: Points to the configuration file of the database. This file contains the schema and the table paths of the database. The name must be the same as "schema.name". <b>The datapath needs to be changed to correspond to the ABSOLUTE PATH of the folder containing the data the user wants to query.</b>li>
+<li><b> model.json</b>: This file contains the schema and the table paths of the database. The name must be the same as "schema.name". <b>The datapath needs to be changed to correspond to the ABSOLUTE PATH of the folder containing the data the user wants to query.</b>li>
 </ul>
 
 For debugging and experimental purposes, the following can also be provided.<br>
